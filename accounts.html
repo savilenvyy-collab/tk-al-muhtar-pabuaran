@@ -1,0 +1,521 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Akun - TK AL-Muhtar</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .container {
+            width: 100%;
+        }
+        .header, .panel {
+            background: var(--white);
+            padding: 25px;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+        .header h1 {
+            margin: 0 0 8px;
+            color: var(--navy);
+            font-size: 27px;
+            font-weight: 900;
+        }
+        .panel h2 {
+            margin-bottom: 16px;
+            color: var(--navy);
+            font-size: 18px;
+            font-weight: 900;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .field { margin-bottom: 16px; }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font: inherit;
+        }
+        button {
+            border: 0;
+            padding: 13px 20px;
+            border-radius: 8px;
+            background: var(--blue);
+            color: var(--white);
+            font: 800 14px 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+        .hidden { display: none; }
+        #pesan {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+        #pesanReset {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            display: none;
+        }
+        .success { background: #dcfce7; color: #166534; }
+        .error { background: #fee2e2; color: #991b1b; }
+        @media(max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; gap: 0; }
+            .header, .panel { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Sistem Administrasi Sekolah</p>
+
+        <a href="admin.html">📊 Dashboard</a>
+        <a href="students.html">👧 Data Siswa</a>
+        <a href="teachers.html">👩‍🏫 Data Guru</a>
+        <a href="attendance.html">📋 Absensi</a>
+        <a href="development.html">🌱 Perkembangan Anak</a>
+        <a href="announcements.html">📢 Pengumuman</a>
+        <a href="kegiatan.html">🎨 Kegiatan</a>
+        <a href="#">💰 Keuangan</a>
+        <a href="accounts.html" class="active" aria-current="page">👤 Manajemen Akun</a>
+        <a href="settings.html">⚙️ Pengaturan</a>
+        <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="header">
+                <h1>👤 Manajemen Akun</h1>
+                <p>Buat akun Guru dan Orang Tua TK AL-Muhtar.</p>
+            </div>
+
+    <div class="panel">
+        <h2>Tambah Akun Baru</h2>
+
+        <form id="formAkun">
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>Nama Lengkap</label>
+                    <input id="nama" maxlength="100" required>
+                </div>
+
+                <div class="field">
+                    <label>Username</label>
+                    <input id="username" maxlength="50"
+                        pattern="[a-zA-Z0-9_.\-]+"
+                        autocomplete="off"
+                        required>
+                </div>
+
+                <div class="field">
+                    <label>Email</label>
+                    <input id="email" type="email" required>
+                </div>
+
+                <div class="field">
+                    <label>Password Awal</label>
+                    <input id="password" type="password"
+                        minlength="8" maxlength="256"
+                        autocomplete="new-password" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Jenis Akun</label>
+                <select id="role" required>
+                    <option value="">Pilih jenis akun</option>
+                    <option value="guru">Guru</option>
+                    <option value="parent">Orang Tua</option>
+                </select>
+            </div>
+
+            <div id="bagianOrangTua" class="hidden">
+
+                <div class="field">
+                    <label>Hubungan dengan Anak</label>
+                    <select id="hubungan">
+                        <option value="">Pilih hubungan</option>
+                        <option value="Ayah">Ayah</option>
+                        <option value="Ibu">Ibu</option>
+                        <option value="Wali">Wali</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Pilih Anak</label>
+                    <select id="anak">
+                        <option value="">Memuat data anak...</option>
+                    </select>
+                </div>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Nomor Telepon</label>
+                        <input id="telepon" type="tel">
+                    </div>
+
+                    <div class="field">
+                        <label>Alamat</label>
+                        <input id="alamat">
+                    </div>
+                </div>
+            </div>
+
+            <button id="tombolSimpan" type="submit">
+                Buat Akun
+            </button>
+
+            <div id="pesan"></div>
+
+        </form>
+    </div>
+
+    <div class="panel">
+        <h2>Reset Password Akun</h2>
+        <p>Pilih akun Guru atau Orang Tua, lalu masukkan password baru.</p>
+
+        <form id="formResetPassword">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="akunReset">Username</label>
+                    <select id="akunReset" autocomplete="off" required>
+                        <option value="">Memuat akun...</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="passwordReset">Password Baru</label>
+                    <input id="passwordReset" type="password"
+                        minlength="8" maxlength="256"
+                        autocomplete="new-password" required>
+                </div>
+
+                <div class="field">
+                    <label for="konfirmasiPasswordReset">Konfirmasi Password Baru</label>
+                    <input id="konfirmasiPasswordReset" type="password"
+                        minlength="8" maxlength="256"
+                        autocomplete="new-password" required>
+                </div>
+            </div>
+
+            <button id="tombolReset" type="submit">
+                Reset Password
+            </button>
+
+            <div id="pesanReset"></div>
+        </form>
+    </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const SUPABASE_URL = "https://ianbedmbrrmqhbpbbvnr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8";
+
+const sbClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+const form = document.getElementById("formAkun");
+const role = document.getElementById("role");
+const bagianOrangTua = document.getElementById("bagianOrangTua");
+const anak = document.getElementById("anak");
+const pesan = document.getElementById("pesan");
+const tombol = document.getElementById("tombolSimpan");
+const formResetPassword =
+    document.getElementById("formResetPassword");
+const akunReset =
+    document.getElementById("akunReset");
+const passwordReset =
+    document.getElementById("passwordReset");
+const konfirmasiPasswordReset =
+    document.getElementById("konfirmasiPasswordReset");
+const tombolReset =
+    document.getElementById("tombolReset");
+const pesanReset =
+    document.getElementById("pesanReset");
+
+function tampilPesan(teks, jenis) {
+    pesan.textContent = teks;
+    pesan.className = jenis;
+    pesan.style.display = "block";
+}
+
+function tampilPesanReset(teks, jenis) {
+    pesanReset.textContent = teks;
+    pesanReset.className = jenis;
+    pesanReset.style.display = "block";
+}
+
+async function periksaAdmin() {
+    const { data: { session }, error } =
+        await sbClient.auth.getSession();
+
+    if (error || !session) {
+        window.location.replace("login.html");
+        return false;
+    }
+
+    const { data, error: adminError } =
+        await sbClient.rpc("is_admin");
+
+    if (adminError || data !== true) {
+        alert("Akses hanya untuk Admin.");
+        window.location.replace("login.html");
+        return false;
+    }
+
+    return true;
+}
+
+async function muatAnak() {
+    anak.innerHTML = '<option value="">Memuat data...</option>';
+
+    const { data, error } = await sbClient
+        .from("students")
+        .select("id, full_name")
+        .eq("is_active", true)
+        .order("full_name");
+
+    if (error) {
+        anak.innerHTML =
+            '<option value="">Gagal memuat data anak</option>';
+        console.error(error);
+        return;
+    }
+
+    anak.innerHTML = '<option value="">Pilih anak</option>';
+
+    data.forEach(siswa => {
+        const option = document.createElement("option");
+        option.value = siswa.id;
+        option.textContent = siswa.full_name;
+        anak.appendChild(option);
+    });
+}
+
+async function muatAkunReset() {
+    akunReset.innerHTML =
+        '<option value="">Memuat akun...</option>';
+
+    const { data, error } = await sbClient
+        .from("profiles")
+        .select("username, role")
+        .in("role", ["guru", "parent"])
+        .eq("is_active", true)
+        .order("username");
+
+    if (error) {
+        akunReset.innerHTML =
+            '<option value="">Gagal memuat akun</option>';
+        tampilPesanReset(
+            "Gagal memuat daftar akun: " + error.message,
+            "error"
+        );
+        return;
+    }
+
+    akunReset.innerHTML =
+        '<option value="">Pilih akun</option>';
+
+    (data || []).forEach(profil => {
+        if (!profil.username) return;
+
+        const option = document.createElement("option");
+        option.value = profil.username;
+        const roleLabel =
+            profil.role === "guru" ? "Guru" : "Orang Tua";
+        option.textContent =
+            `${profil.username} - ${roleLabel}`;
+        akunReset.appendChild(option);
+    });
+}
+
+role.addEventListener("change", async () => {
+    const isParent = role.value === "parent";
+
+    bagianOrangTua.classList.toggle("hidden", !isParent);
+
+    document.getElementById("hubungan").required = isParent;
+    anak.required = isParent;
+
+    if (isParent) {
+        await muatAnak();
+    }
+});
+
+form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    pesan.style.display = "none";
+    tombol.disabled = true;
+    tombol.textContent = "Membuat akun...";
+
+    try {
+        const payload = {
+            full_name: document.getElementById("nama").value.trim(),
+            username: document.getElementById("username").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            password: document.getElementById("password").value,
+            role: role.value
+        };
+
+        if (role.value === "parent") {
+            payload.student_id = anak.value;
+            payload.relationship =
+                document.getElementById("hubungan").value;
+            payload.phone =
+                document.getElementById("telepon").value.trim();
+            payload.address =
+                document.getElementById("alamat").value.trim();
+        }
+
+        const { data, error } = await sbClient.functions.invoke(
+            "admin-create-user",
+            { body: payload }
+        );
+
+        if (error) {
+            throw new Error(
+                data?.error || error.message ||
+                "Gagal menghubungi server."
+            );
+        }
+
+        if (data?.error) {
+            throw new Error(data.error);
+        }
+
+        tampilPesan(
+            "Akun berhasil dibuat! Username: " + data.username,
+            "success"
+        );
+
+        form.reset();
+        bagianOrangTua.classList.add("hidden");
+
+    } catch (error) {
+        tampilPesan(error.message, "error");
+    } finally {
+        tombol.disabled = false;
+        tombol.textContent = "Buat Akun";
+    }
+});
+
+formResetPassword.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    pesanReset.style.display = "none";
+
+    const username = akunReset.value.trim();
+    const passwordBaru = passwordReset.value;
+    const konfirmasiPassword =
+        konfirmasiPasswordReset.value;
+
+    if (!username) {
+        tampilPesanReset(
+            "Pilih akun yang akan direset.",
+            "error"
+        );
+        return;
+    }
+
+    if (passwordBaru !== konfirmasiPassword) {
+        tampilPesanReset(
+            "Konfirmasi password baru tidak sama.",
+            "error"
+        );
+        return;
+    }
+
+    tombolReset.disabled = true;
+    tombolReset.textContent = "Mereset password...";
+
+    try {
+        const { data, error } =
+            await sbClient.functions.invoke(
+                "admin-reset-password",
+                {
+                    body: {
+                        username,
+                        password: passwordBaru
+                    }
+                }
+            );
+
+        if (error) {
+            throw new Error(
+                data?.error || error.message ||
+                "Gagal menghubungi server."
+            );
+        }
+
+        if (data?.error) {
+            throw new Error(data.error);
+        }
+
+        tampilPesanReset(
+            "Password akun " + username +
+            " berhasil diperbarui.",
+            "success"
+        );
+        formResetPassword.reset();
+    } catch (error) {
+        tampilPesanReset(error.message, "error");
+    } finally {
+        tombolReset.disabled = false;
+        tombolReset.textContent = "Reset Password";
+    }
+});
+
+(async () => {
+    document.body.style.display = "none";
+
+    const bolehMasuk = await periksaAdmin();
+
+    if (bolehMasuk) {
+        await muatAkunReset();
+        document.body.style.display = "block";
+    }
+})();
+
+document.getElementById("adminLogout").addEventListener("click", async () => {
+    const button = document.getElementById("adminLogout");
+    button.disabled = true;
+    try {
+        const { error } = await sbClient.auth.signOut();
+        if (error) throw error;
+        window.location.replace("login.html");
+    } catch (error) {
+        console.error("Gagal logout Admin:", error);
+        alert("Gagal logout: " + error.message);
+        button.disabled = false;
+    }
+});
+</script>
+
+</body>
+</html>

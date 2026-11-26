@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan - TK AL-Muhtar</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        [hidden] {
+            display: none !important;
+        }
+
+        .access-state {
+            max-width: 680px;
+            margin: 48px auto;
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--white);
+            color: var(--text);
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .06);
+        }
+
+        .access-state a {
+            color: var(--blue);
+            font-weight: 800;
+        }
+
+        .settings-notice {
+            margin-bottom: 20px;
+            padding: 15px 18px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--light-blue);
+            color: var(--navy);
+            line-height: 1.6;
+        }
+
+        .settings-form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .settings-fields {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .settings-field label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--navy);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .settings-field input,
+        .settings-field select {
+            width: 100%;
+            min-width: 0;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--text);
+            font: inherit;
+        }
+
+        .settings-form button {
+            justify-self: start;
+            border: 0;
+            border-radius: 9px;
+            padding: 11px 16px;
+            background: var(--blue);
+            color: var(--white);
+            font: 800 14px 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+
+        .settings-form button:disabled {
+            cursor: wait;
+            opacity: .65;
+        }
+
+        .form-message {
+            min-height: 22px;
+            margin: 0;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .form-message.success {
+            color: #16834a;
+        }
+
+        .form-message.error {
+            color: #b42318;
+        }
+
+        .form-message.neutral {
+            color: var(--muted);
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .settings-card {
+            min-width: 0;
+            padding: 25px;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            background: var(--white);
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+
+        .settings-card h2 {
+            margin-bottom: 17px;
+            color: var(--navy);
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .settings-list {
+            display: grid;
+            gap: 13px;
+            margin: 0;
+        }
+
+        .settings-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .settings-item:last-child {
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        .settings-item dt {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .settings-item dd {
+            margin: 0;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 800;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .settings-status {
+            color: #16834a !important;
+        }
+
+        @media (max-width: 700px) {
+            .settings-fields {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+    </style>
+</head>
+<body>
+
+<div id="accessState" class="access-state" role="status" aria-live="polite">
+    Memverifikasi akses Admin...
+</div>
+
+<div id="adminPage" class="admin-layout" hidden>
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Sistem Administrasi Sekolah</p>
+
+        <a href="admin.html">📊 Dashboard</a>
+        <a href="students.html">👧 Data Siswa</a>
+        <a href="teachers.html">👩‍🏫 Data Guru</a>
+        <a href="attendance.html">📋 Absensi</a>
+        <a href="development.html">🌱 Perkembangan Anak</a>
+        <a href="announcements.html">📢 Pengumuman</a>
+        <a href="kegiatan.html">🎨 Kegiatan</a>
+        <a href="#">💰 Keuangan</a>
+        <a href="accounts.html">👤 Manajemen Akun</a>
+        <a href="settings.html" class="active" aria-current="page">⚙️ Pengaturan</a>
+        <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="topbar">
+            <h1>Pengaturan</h1>
+        </div>
+
+        <p class="settings-notice" id="settingsNotice">
+            Perubahan identitas sekolah dan tahun ajaran tersimpan permanen setelah
+            tombol Simpan berhasil diproses.
+        </p>
+
+        <div class="settings-grid">
+            <section class="settings-card" aria-labelledby="schoolSettingsTitle">
+                <h2 id="schoolSettingsTitle">Identitas Sekolah</h2>
+                <form id="schoolSettingsForm" class="settings-form">
+                    <div class="settings-fields">
+                        <div class="settings-field">
+                            <label for="schoolName">Nama sekolah</label>
+                            <input id="schoolName" name="school_name" maxlength="150"
+                                value="TK AL-Muhtar Pabuaran" required>
+                        </div>
+                        <div class="settings-field">
+                            <label for="schoolPhone">Nomor telepon sekolah</label>
+                            <input id="schoolPhone" name="school_phone" type="tel"
+                                maxlength="50" placeholder="Masukkan nomor telepon">
+                        </div>
+                        <div class="settings-field">
+                            <label for="schoolAddress">Alamat sekolah</label>
+                            <input id="schoolAddress" name="school_address"
+                                maxlength="500" placeholder="Masukkan alamat sekolah">
+                        </div>
+                        <div class="settings-field">
+                            <label for="principalName">Nama kepala sekolah</label>
+                            <input id="principalName" name="principal_name"
+                                maxlength="150" placeholder="Masukkan nama kepala sekolah">
+                        </div>
+                    </div>
+                    <button id="saveSchoolSettingsButton" type="submit">
+                        Simpan Identitas Sekolah
+                    </button>
+                    <p id="schoolSettingsMessage" class="form-message"
+                        role="status" aria-live="polite"></p>
+                </form>
+            </section>
+
+            <section class="settings-card" aria-labelledby="schoolYearTitle">
+                <h2 id="schoolYearTitle">Tahun Ajaran dan Semester</h2>
+                <form id="schoolYearForm" class="settings-form">
+                    <div class="settings-fields">
+                        <div class="settings-field">
+                            <label for="academicYear">Tahun ajaran</label>
+                            <input id="academicYear" name="academic_year"
+                                maxlength="9" pattern="[0-9]{4}/[0-9]{4}"
+                                placeholder="Contoh: 2026/2027" required>
+                        </div>
+                        <div class="settings-field">
+                            <label for="semester">Semester</label>
+                            <select id="semester" name="semester" required>
+                                <option value="">Pilih semester</option>
+                                <option value="Ganjil">Ganjil</option>
+                                <option value="Genap">Genap</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="saveSchoolYearButton" type="submit">
+                        Simpan Tahun Ajaran
+                    </button>
+                    <p id="schoolYearMessage" class="form-message"
+                        role="status" aria-live="polite"></p>
+                </form>
+            </section>
+
+            <section class="settings-card" aria-labelledby="accountInfoTitle">
+                <h2 id="accountInfoTitle">Informasi Akun Admin</h2>
+                <dl class="settings-list">
+                    <div class="settings-item">
+                        <dt>Username Admin</dt>
+                        <dd id="adminUsername">Memuat...</dd>
+                    </div>
+                    <div class="settings-item">
+                        <dt>Akun yang sedang login</dt>
+                        <dd id="adminEmail">Memuat...</dd>
+                    </div>
+                    <div class="settings-item">
+                        <dt>Peran</dt>
+                        <dd>Admin aktif</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="settings-card" aria-labelledby="systemInfoTitle">
+                <h2 id="systemInfoTitle">Informasi Sistem</h2>
+                <dl class="settings-list">
+                    <div class="settings-item">
+                        <dt>Nama aplikasi</dt>
+                        <dd>Sistem Administrasi Sekolah</dd>
+                    </div>
+                    <div class="settings-item">
+                        <dt>Versi sistem</dt>
+                        <dd>Belum ditentukan</dd>
+                    </div>
+                    <div class="settings-item">
+                        <dt>Koneksi Supabase</dt>
+                        <dd id="supabaseStatus">Memeriksa...</dd>
+                    </div>
+                </dl>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const supabase = createClient(
+    "https://ianbedmbrrmqhbpbbvnr.supabase.co",
+    "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8"
+);
+
+const accessState = document.getElementById("accessState");
+const adminPage = document.getElementById("adminPage");
+const schoolSettingsForm = document.getElementById("schoolSettingsForm");
+const schoolYearForm = document.getElementById("schoolYearForm");
+const schoolSettingsButton =
+    document.getElementById("saveSchoolSettingsButton");
+const schoolYearButton =
+    document.getElementById("saveSchoolYearButton");
+let adminUserId = null;
+
+function showFormMessage(id, message, state) {
+    const element = document.getElementById(id);
+    element.textContent = message;
+    element.className = "form-message " + state;
+}
+
+function setSupabaseStatus(message, connected) {
+    const status = document.getElementById("supabaseStatus");
+    status.textContent = message;
+    status.classList.toggle("settings-status", connected);
+}
+
+async function loadSettings() {
+    let result;
+    try {
+        result = await supabase
+            .from("school_settings")
+            .select(
+                "school_name, school_address, school_phone, principal_name, " +
+                "academic_year, semester"
+            )
+            .eq("id", 1)
+            .maybeSingle();
+    } catch (error) {
+        console.error("Gagal memuat pengaturan sekolah:", error);
+        const message = error && error.message ? error.message : String(error);
+        showFormMessage(
+            "schoolSettingsMessage",
+            "Gagal memuat pengaturan: " + message,
+            "error"
+        );
+        showFormMessage(
+            "schoolYearMessage",
+            "Gagal memuat pengaturan: " + message,
+            "error"
+        );
+        return;
+    }
+
+    const { data, error } = result;
+
+    if (error) {
+        console.error("Gagal memuat pengaturan sekolah:", error);
+        showFormMessage(
+            "schoolSettingsMessage",
+            "Gagal memuat pengaturan: " + error.message,
+            "error"
+        );
+        showFormMessage(
+            "schoolYearMessage",
+            "Gagal memuat pengaturan: " + error.message,
+            "error"
+        );
+        return;
+    }
+
+    setSupabaseStatus("Terhubung", true);
+
+    if (!data) {
+        document.getElementById("settingsNotice").textContent =
+            "Belum ada data pengaturan yang tersimpan. Nilai awal nama sekolah " +
+            "hanya akan tersimpan setelah tombol Simpan berhasil diproses.";
+        showFormMessage(
+            "schoolSettingsMessage",
+            "Belum ada data identitas sekolah yang tersimpan.",
+            "neutral"
+        );
+        showFormMessage(
+            "schoolYearMessage",
+            "Belum ada data tahun ajaran dan semester yang tersimpan.",
+            "neutral"
+        );
+        return;
+    }
+
+    document.getElementById("schoolName").value = data.school_name || "";
+    document.getElementById("schoolAddress").value =
+        data.school_address || "";
+    document.getElementById("schoolPhone").value = data.school_phone || "";
+    document.getElementById("principalName").value =
+        data.principal_name || "";
+    document.getElementById("academicYear").value =
+        data.academic_year || "";
+    document.getElementById("semester").value = data.semester || "";
+
+    showFormMessage(
+        "schoolSettingsMessage",
+        "Data pengaturan berhasil dimuat.",
+        "neutral"
+    );
+    showFormMessage(
+        "schoolYearMessage",
+        "Data pengaturan berhasil dimuat.",
+        "neutral"
+    );
+}
+
+schoolSettingsForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    schoolSettingsButton.disabled = true;
+    showFormMessage("schoolSettingsMessage", "Menyimpan...", "neutral");
+
+    try {
+        const { error } = await supabase
+            .from("school_settings")
+            .upsert(
+                {
+                    id: 1,
+                    school_name:
+                        document.getElementById("schoolName").value.trim(),
+                    school_address:
+                        document.getElementById("schoolAddress").value.trim(),
+                    school_phone:
+                        document.getElementById("schoolPhone").value.trim(),
+                    principal_name:
+                        document.getElementById("principalName").value.trim(),
+                    updated_by: adminUserId
+                },
+                { onConflict: "id" }
+            );
+
+        if (error) {
+            throw error;
+        }
+
+        showFormMessage(
+            "schoolSettingsMessage",
+            "Identitas sekolah berhasil disimpan.",
+            "success"
+        );
+    } catch (error) {
+        console.error("Gagal menyimpan identitas sekolah:", error);
+        showFormMessage(
+            "schoolSettingsMessage",
+            "Gagal menyimpan identitas sekolah: " + error.message,
+            "error"
+        );
+    } finally {
+        schoolSettingsButton.disabled = false;
+    }
+});
+
+schoolYearForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    schoolYearButton.disabled = true;
+    showFormMessage("schoolYearMessage", "Menyimpan...", "neutral");
+
+    try {
+        const { error } = await supabase
+            .from("school_settings")
+            .upsert(
+                {
+                    id: 1,
+                    academic_year:
+                        document.getElementById("academicYear").value.trim(),
+                    semester: document.getElementById("semester").value,
+                    updated_by: adminUserId
+                },
+                { onConflict: "id" }
+            );
+
+        if (error) {
+            throw error;
+        }
+
+        showFormMessage(
+            "schoolYearMessage",
+            "Tahun ajaran dan semester berhasil disimpan.",
+            "success"
+        );
+    } catch (error) {
+        console.error("Gagal menyimpan tahun ajaran:", error);
+        showFormMessage(
+            "schoolYearMessage",
+            "Gagal menyimpan tahun ajaran: " + error.message,
+            "error"
+        );
+    } finally {
+        schoolYearButton.disabled = false;
+    }
+});
+
+async function redirectToLogin(signOut) {
+    if (signOut) {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error("Gagal mengakhiri sesi non-Admin:", error);
+        }
+    }
+
+    window.location.replace("login.html");
+}
+
+async function verifyAdmin() {
+    try {
+        const { data: sessionData, error: sessionError } =
+            await supabase.auth.getSession();
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+        const session = sessionData.session;
+        if (!session) {
+            await redirectToLogin(false);
+            return;
+        }
+
+        const { data: isAdmin, error: adminError } =
+            await supabase.rpc("is_admin");
+
+        if (adminError) {
+            throw adminError;
+        }
+
+        if (isAdmin !== true) {
+            await redirectToLogin(true);
+            return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("username, role, is_active")
+            .eq("id", session.user.id)
+            .maybeSingle();
+
+        if (profileError) {
+            throw profileError;
+        }
+
+        if (
+            !profile ||
+            profile.role !== "admin" ||
+            profile.is_active !== true
+        ) {
+            await redirectToLogin(true);
+            return;
+        }
+
+        document.getElementById("adminUsername").textContent =
+            profile.username || "Tidak tersedia";
+        document.getElementById("adminEmail").textContent =
+            session.user.email || "Tidak tersedia";
+        adminUserId = session.user.id;
+        setSupabaseStatus("Terhubung", true);
+
+        adminPage.hidden = false;
+        accessState.hidden = true;
+        await loadSettings();
+    } catch (error) {
+        console.error("Pemeriksaan akses Pengaturan gagal:", error);
+        accessState.textContent =
+            "Akses belum dapat diverifikasi. Periksa koneksi lalu masuk kembali. ";
+        accessState.setAttribute("role", "alert");
+
+        const loginLink = document.createElement("a");
+        loginLink.href = "login.html";
+        loginLink.textContent = "Buka halaman login.";
+        accessState.appendChild(loginLink);
+
+        document.getElementById("supabaseStatus").textContent =
+            "Tidak dapat diverifikasi";
+        document.getElementById("supabaseStatus").classList.remove(
+            "settings-status"
+        );
+    }
+}
+
+document.getElementById("adminLogout").addEventListener(
+    "click",
+    async () => {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error("Gagal logout:", error);
+            accessState.hidden = false;
+            accessState.textContent = "Gagal logout: " + error.message;
+            accessState.setAttribute("role", "alert");
+            return;
+        }
+
+        window.location.replace("login.html");
+    }
+);
+
+await verifyAdmin();
+</script>
+
+</body>
+</html>

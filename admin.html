@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - TK AL-Muhtar</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Sistem Administrasi Sekolah</p>
+
+        <a href="#" class="active">📊 Dashboard</a>
+        <a href="students.html">👧 Data Siswa</a>
+        <a href="teachers.html">👩‍🏫 Data Guru</a>
+        <a href="attendance.html">📋 Absensi</a>
+        <a href="development.html">🌱 Perkembangan Anak</a>
+        <a href="announcements.html">📢 Pengumuman</a>
+        <a href="kegiatan.html">🎨 Kegiatan</a>
+        <a href="#">💰 Keuangan</a>
+        <a href="accounts.html">👤 Manajemen Akun</a>
+        <a href="settings.html">⚙️ Pengaturan</a>
+        <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content">
+
+        <div class="topbar">
+            <h1>Dashboard</h1>
+            <div class="admin-profile">👤 Admin TK</div>
+        </div>
+
+        <section class="admin-welcome">
+            <h2>Selamat Datang, Admin!</h2>
+            <p>
+                Kelola seluruh informasi dan administrasi
+                TK AL-Muhtar Pabuaran melalui dashboard ini.
+            </p>
+        </section>
+
+        <h2 style="margin-bottom: 18px;">Ringkasan Sekolah</h2>
+
+        <section class="dashboard-cards">
+
+            <div class="dashboard-card">
+                <div class="icon">👧</div>
+                <h3>Total Siswa</h3>
+                <p id="totalSiswa">Memuat...</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="icon">👩‍🏫</div>
+                <h3>Total Guru</h3>
+                <p id="totalGuru">Memuat...</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="icon">📋</div>
+                <h3>Absensi Hari Ini</h3>
+                <p id="totalAbsensi">Memuat...</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="icon">📢</div>
+                <h3>Pengumuman</h3>
+                <p id="totalPengumuman">Memuat...</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="icon">🎨</div>
+                <h3>Kegiatan Sekolah</h3>
+                <p id="totalKegiatan">Memuat...</p>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="icon">💰</div>
+                <h3>Keuangan</h3>
+                <p id="totalKeuangan">Memuat...</p>
+            </div>
+
+        </section>
+
+    </main>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL = "https://ianbedmbrrmqhbpbbvnr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function tampilkan(id, nilai) {
+    document.getElementById(id).textContent = nilai;
+}
+
+async function muatDashboard() {
+
+    const hariIni = new Date().toLocaleDateString("en-CA");
+
+    const hasil = await Promise.all([
+        supabase.from("students")
+            .select("*", { count: "exact", head: true })
+            .eq("is_active", true),
+
+        supabase.from("profiles")
+            .select("*", { count: "exact", head: true })
+            .eq("role", "guru")
+            .eq("is_active", true),
+
+        supabase.from("attendance")
+            .select("*", { count: "exact", head: true })
+            .eq("attendance_date", hariIni),
+
+        supabase.from("announcements")
+            .select("*", { count: "exact", head: true })
+            .eq("is_published", true),
+
+        supabase.from("activities")
+            .select("*", { count: "exact", head: true })
+            .eq("is_active", true),
+
+        supabase.from("cash_payments")
+            .select("amount"),
+
+        supabase.from("cash_expenses")
+            .select("amount")
+    ]);
+
+    const ids = [
+        "totalSiswa",
+        "totalGuru",
+        "totalAbsensi",
+        "totalPengumuman",
+        "totalKegiatan"
+    ];
+
+    const labelHasil = [
+        hasil[0], hasil[1], hasil[2], hasil[3], hasil[4]
+    ];
+
+    for (let i = 0; i < labelHasil.length; i++) {
+        const item = labelHasil[i];
+
+        if (item.error) {
+            tampilkan(ids[i], "Gagal memuat");
+            console.error(item.error);
+        } else {
+            tampilkan(ids[i], item.count ?? 0);
+        }
+    }
+
+    const pembayaran = hasil[5];
+    const pengeluaran = hasil[6];
+
+    if (pembayaran.error || pengeluaran.error) {
+        tampilkan("totalKeuangan", "Gagal memuat");
+        console.error(pembayaran.error || pengeluaran.error);
+    } else {
+        const totalMasuk = (pembayaran.data || [])
+            .reduce((total, item) => total + Number(item.amount || 0), 0);
+
+        const totalKeluar = (pengeluaran.data || [])
+            .reduce((total, item) => total + Number(item.amount || 0), 0);
+
+        const saldo = totalMasuk - totalKeluar;
+
+        tampilkan(
+            "totalKeuangan",
+            "Rp " + saldo.toLocaleString("id-ID")
+        );
+    }
+}
+
+async function checkAdmin() {
+    try {
+        const { data: { session }, error: sessionError } =
+            await supabase.auth.getSession();
+
+        console.info(
+            "Diagnostik Auth Admin",
+            {
+                hasSession: Boolean(session),
+                hasUserId: Boolean(session?.user?.id),
+                sessionError: sessionError?.message || null
+            }
+        );
+
+        if (sessionError || !session) {
+            console.info("Diagnostik Auth Admin: redirect ke login karena sesi tidak tersedia");
+            window.location.replace("login.html");
+            return;
+        }
+
+        const { data: isAdmin, error } =
+            await supabase.rpc("is_admin");
+
+        console.info(
+            "Diagnostik RPC is_admin",
+            {
+                data: isAdmin,
+                error: error?.message || null
+            }
+        );
+
+        if (error) {
+            console.error("Pemeriksaan Admin gagal:", error);
+            window.location.replace("login.html");
+            return;
+        }
+
+        if (isAdmin !== true) {
+            console.info(
+                "Diagnostik Auth Admin: redirect ke login karena is_admin() bukan true"
+            );
+            await supabase.auth.signOut();
+            window.location.replace("login.html");
+            return;
+        }
+
+        document.body.style.display = "block";
+        await muatDashboard();
+
+    } catch (error) {
+        console.error("Pemeriksaan akses gagal:", error);
+        window.location.replace("login.html");
+    }
+}
+
+document.body.style.display = "none";
+checkAdmin();
+
+document.getElementById("adminLogout").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.replace("login.html");
+});
+</script>
+
+</body>
+</html>

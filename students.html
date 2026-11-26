@@ -1,0 +1,400 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Siswa - TK AL-Muhtar</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .student-panel {
+            background: var(--white);
+            padding: 25px;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+
+        .student-panel h2 {
+            margin-bottom: 16px;
+            color: var(--navy);
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .student-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .student-form input,
+        .student-form select,
+        .student-form textarea,
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font: inherit;
+            box-sizing: border-box;
+        }
+
+        .student-form textarea {
+            grid-column: 1 / -1;
+            min-height: 75px;
+        }
+
+        .student-form button,
+        .action-button {
+            border: none;
+            padding: 11px 16px;
+            border-radius: 8px;
+            background: var(--blue);
+            color: var(--white);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .student-form button {
+            grid-column: 1 / -1;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .student-table th,
+        .student-table td {
+            text-align: left;
+            padding: 13px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .student-table th {
+            background: #f8fafc;
+        }
+
+        .status-active {
+            color: #16834a;
+            font-weight: bold;
+        }
+
+        .status-inactive {
+            color: #c0392b;
+            font-weight: bold;
+        }
+
+        .small-button {
+            padding: 7px 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: var(--light-blue);
+            margin: 2px;
+        }
+
+        #pesan {
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        @media(max-width: 650px) {
+            .student-form {
+                grid-template-columns: 1fr;
+            }
+
+            .student-form textarea,
+            .student-form button {
+                grid-column: auto;
+            }
+
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Sistem Administrasi Sekolah</p>
+
+        <a href="admin.html">📊 Dashboard</a>
+        <a href="students.html" class="active">👧 Data Siswa</a>
+        <a href="teachers.html">👩‍🏫 Data Guru</a>
+        <a href="attendance.html">📋 Absensi</a>
+        <a href="development.html">🌱 Perkembangan Anak</a>
+        <a href="announcements.html">📢 Pengumuman</a>
+        <a href="kegiatan.html">🎨 Kegiatan</a>
+        <a href="#">💰 Keuangan</a>
+        <a href="accounts.html">👤 Manajemen Akun</a>
+        <a href="settings.html">⚙️ Pengaturan</a>
+        <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content student-content">
+
+        <div class="topbar">
+            <div>
+                <h1>Data Siswa 👧</h1>
+                <p>Kelola data siswa TK AL-Muhtar Pabuaran.</p>
+            </div>
+        </div>
+
+        <section class="student-panel">
+            <h2>Tambah Siswa Baru</h2>
+
+            <form id="formSiswa" class="student-form">
+                <input id="nomor" placeholder="Nomor Induk Siswa" required>
+                <input id="nama" placeholder="Nama lengkap siswa" required>
+
+                <input id="lahir" type="date">
+
+                <select id="gender">
+                    <option value="">Pilih jenis kelamin</option>
+                    <option value="L">Laki-laki</option>
+                    <option value="P">Perempuan</option>
+                </select>
+
+                <textarea id="alamat" placeholder="Alamat siswa (opsional)"></textarea>
+
+                <button type="submit" id="tombolSimpan">
+                    Simpan Data Siswa
+                </button>
+            </form>
+
+            <p id="pesan"></p>
+        </section>
+
+        <section class="student-panel">
+            <h2>Daftar Siswa</h2>
+
+            <input
+                class="search-input"
+                id="pencarian"
+                placeholder="Cari nama atau nomor siswa..."
+            >
+
+            <br><br>
+
+            <div class="table-wrap">
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Nomor Induk</th>
+                            <th>Nama Siswa</th>
+                            <th>Tanggal Lahir</th>
+                            <th>Jenis Kelamin</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daftarSiswa">
+                        <tr>
+                            <td colspan="7">Memuat data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const supabase = createClient(
+    "https://ianbedmbrrmqhbpbbvnr.supabase.co",
+    "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8"
+);
+
+const pesan = document.getElementById("pesan");
+const daftar = document.getElementById("daftarSiswa");
+
+let semuaSiswa = [];
+
+async function periksaAdmin() {
+    document.body.style.display = "none";
+
+    const { data: { session }, error: sessionError } =
+        await supabase.auth.getSession();
+
+    if (sessionError || !session) {
+        window.location.replace("login.html");
+        return false;
+    }
+
+    const { data, error } = await supabase.rpc("is_admin");
+
+    if (error || data !== true) {
+        await supabase.auth.signOut();
+        window.location.replace("login.html");
+        return false;
+    }
+
+    document.body.style.display = "block";
+    return true;
+}
+
+async function muatSiswa() {
+    daftar.innerHTML = "<tr><td colspan='7'>Memuat...</td></tr>";
+
+    const { data, error } = await supabase
+        .from("students")
+        .select("id, student_number, full_name, birth_date, gender, is_active")
+        .order("full_name");
+
+    if (error) {
+        daftar.innerHTML =
+            "<tr><td colspan='7'>Gagal memuat data siswa.</td></tr>";
+        console.error(error);
+        return;
+    }
+
+    semuaSiswa = data || [];
+    tampilkanSiswa(semuaSiswa);
+}
+
+function tampilkanSiswa(data) {
+    daftar.innerHTML = "";
+
+    if (data.length === 0) {
+        daftar.innerHTML =
+            "<tr><td colspan='7'>Belum ada data siswa.</td></tr>";
+        return;
+    }
+
+    data.forEach((siswa, index) => {
+        const baris = document.createElement("tr");
+
+        const kolom = [
+            index + 1,
+            siswa.student_number,
+            siswa.full_name,
+            siswa.birth_date || "-",
+            siswa.gender || "-",
+            siswa.is_active ? "Aktif" : "Nonaktif"
+        ];
+
+        kolom.forEach((nilai, i) => {
+            const td = document.createElement("td");
+            td.textContent = nilai;
+
+            if (i === 5) {
+                td.className = siswa.is_active
+                    ? "status-active"
+                    : "status-inactive";
+            }
+
+            baris.appendChild(td);
+        });
+
+        const aksi = document.createElement("td");
+        const tombol = document.createElement("button");
+
+        tombol.className = "small-button";
+        tombol.textContent = siswa.is_active
+            ? "Nonaktifkan"
+            : "Aktifkan";
+
+        tombol.addEventListener("click", () => ubahStatus(siswa));
+
+        aksi.appendChild(tombol);
+        baris.appendChild(aksi);
+        daftar.appendChild(baris);
+    });
+}
+
+document.getElementById("formSiswa").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const tombol = document.getElementById("tombolSimpan");
+    tombol.disabled = true;
+    pesan.textContent = "Menyimpan data...";
+
+    const siswa = {
+        student_number: document.getElementById("nomor").value.trim(),
+        full_name: document.getElementById("nama").value.trim(),
+        birth_date: document.getElementById("lahir").value || null,
+        gender: document.getElementById("gender").value || null,
+        address: document.getElementById("alamat").value.trim() || null
+    };
+
+    const { error } = await supabase
+        .from("students")
+        .insert(siswa);
+
+    tombol.disabled = false;
+
+    if (error) {
+        pesan.textContent = "Gagal menyimpan: " + error.message;
+        return;
+    }
+
+    pesan.textContent = "Data siswa berhasil ditambahkan!";
+    event.target.reset();
+    await muatSiswa();
+});
+
+async function ubahStatus(siswa) {
+    const statusBaru = !siswa.is_active;
+
+    if (!confirm(
+        `Ubah status ${siswa.full_name} menjadi ${statusBaru ? "Aktif" : "Nonaktif"}?`
+    )) return;
+
+    const { error } = await supabase
+        .from("students")
+        .update({ is_active: statusBaru })
+        .eq("id", siswa.id);
+
+    if (error) {
+        alert("Gagal mengubah status: " + error.message);
+        return;
+    }
+
+    await muatSiswa();
+}
+
+document.getElementById("pencarian").addEventListener("input", (event) => {
+    const kata = event.target.value.toLowerCase();
+
+    const hasil = semuaSiswa.filter(siswa =>
+        siswa.full_name.toLowerCase().includes(kata) ||
+        siswa.student_number.toLowerCase().includes(kata)
+    );
+
+    tampilkanSiswa(hasil);
+});
+
+if (await periksaAdmin()) {
+    await muatSiswa();
+}
+
+document.getElementById("adminLogout").addEventListener("click", async () => {
+    const button = document.getElementById("adminLogout");
+    button.disabled = true;
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        window.location.replace("login.html");
+    } catch (error) {
+        console.error("Gagal logout Admin:", error);
+        alert("Gagal logout: " + error.message);
+        button.disabled = false;
+    }
+});
+</script>
+
+</body>
+</html>

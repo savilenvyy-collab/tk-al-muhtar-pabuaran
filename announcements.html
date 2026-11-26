@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengelolaan Pengumuman - TK AL-Muhtar</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .announcement-content {
+            flex: 1;
+            min-width: 0;
+            padding: 32px;
+        }
+
+        .announcement-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .announcement-toolbar h1 {
+            color: var(--navy);
+            font-size: 27px;
+        }
+
+        .announcement-grid-layout {
+            display: grid;
+            grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .announcement-panel,
+        .announcement-list-panel {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: var(--white);
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+
+        .announcement-panel {
+            padding: 20px;
+        }
+
+        .announcement-panel h2,
+        .announcement-list-panel h2 {
+            color: var(--navy);
+            font-size: 18px;
+        }
+
+        .announcement-panel h2 {
+            margin-bottom: 16px;
+        }
+
+        .announcement-field {
+            margin-bottom: 14px;
+        }
+
+        .announcement-field label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--navy);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .announcement-field input,
+        .announcement-field textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 11px 12px;
+            background: var(--white);
+            color: var(--text);
+            font: inherit;
+        }
+
+        .announcement-field textarea {
+            min-height: 170px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .announcement-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .announcement-actions button {
+            border: 0;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font: 800 14px 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+
+        .primary-button {
+            background: var(--blue);
+            color: var(--white);
+        }
+
+        .secondary-button {
+            background: var(--light-blue);
+            color: var(--navy);
+        }
+
+        .announcement-actions button:disabled,
+        .row-actions button:disabled {
+            cursor: wait;
+            opacity: .65;
+        }
+
+        .announcement-message {
+            min-height: 22px;
+            margin-top: 12px;
+            color: #991b1b;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .announcement-message.success {
+            color: #166534;
+        }
+
+        .announcement-list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .announcement-count {
+            border-radius: 999px;
+            padding: 5px 10px;
+            background: var(--light-blue);
+            color: var(--navy);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .announcement-table-wrap {
+            overflow-x: auto;
+        }
+
+        .announcement-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 760px;
+        }
+
+        .announcement-table th,
+        .announcement-table td {
+            padding: 13px 14px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .announcement-table th {
+            background: #f8fafc;
+            color: var(--navy);
+            font-size: 13px;
+        }
+
+        .announcement-title {
+            display: block;
+            max-width: 240px;
+            color: var(--navy);
+            font-weight: 800;
+        }
+
+        .announcement-preview {
+            display: block;
+            max-width: 280px;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 5px 9px;
+            background: #e5e7eb;
+            color: #4b5563;
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .status-badge.published {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .date-cell {
+            min-width: 150px;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .row-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            min-width: 190px;
+        }
+
+        .row-actions button {
+            border: 0;
+            border-radius: 8px;
+            padding: 8px 9px;
+            background: var(--light-blue);
+            color: var(--navy);
+            font: 800 12px 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+
+        .row-actions .danger-button {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .empty-row {
+            padding: 28px 20px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 1000px) {
+            .announcement-grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .announcement-content {
+                padding: 20px;
+            }
+
+            .announcement-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .announcement-actions button {
+                flex: 1 1 130px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Sistem Administrasi Sekolah</p>
+
+        <a href="admin.html">📊 Dashboard</a>
+        <a href="students.html">👧 Data Siswa</a>
+        <a href="teachers.html">👩‍🏫 Data Guru</a>
+        <a href="attendance.html">📋 Absensi</a>
+        <a href="development.html">🌱 Perkembangan Anak</a>
+        <a href="announcements.html" class="active">📢 Pengumuman</a>
+        <a href="kegiatan.html">🎨 Kegiatan</a>
+        <a href="#">💰 Keuangan</a>
+        <a href="accounts.html">👤 Manajemen Akun</a>
+        <a href="settings.html">⚙️ Pengaturan</a>
+        <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+    <main class="announcement-content">
+        <div class="announcement-toolbar">
+            <h1>Pengelolaan Pengumuman</h1>
+        </div>
+
+        <p id="announcementMessage" class="announcement-message"></p>
+
+        <div class="announcement-grid-layout">
+            <section class="announcement-panel">
+                <h2 id="formTitle">Buat Pengumuman</h2>
+
+                <form id="announcementForm">
+                    <input type="hidden" id="announcementId">
+
+                    <div class="announcement-field">
+                        <label for="announcementTitle">Judul Pengumuman</label>
+                        <input
+                            id="announcementTitle"
+                            type="text"
+                            maxlength="200"
+                            placeholder="Contoh: Informasi Libur Sekolah"
+                            required
+                        >
+                    </div>
+
+                    <div class="announcement-field">
+                        <label for="announcementContent">Isi Pengumuman</label>
+                        <textarea
+                            id="announcementContent"
+                            maxlength="5000"
+                            placeholder="Tulis informasi yang ingin disampaikan..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="announcement-actions">
+                        <button type="button" id="saveDraftButton" class="primary-button">
+                            Simpan sebagai Draft
+                        </button>
+                        <button type="button" id="saveAndPublishButton" class="secondary-button">
+                            Simpan &amp; Terbitkan
+                        </button>
+                        <button type="button" id="cancelEditButton" class="secondary-button" hidden>
+                            Batal Edit
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="announcement-list-panel">
+                <div class="announcement-list-header">
+                    <h2>Daftar Pengumuman</h2>
+                    <span id="announcementCount" class="announcement-count">0 pengumuman</span>
+                </div>
+                <div class="announcement-table-wrap">
+                    <table class="announcement-table">
+                        <thead>
+                            <tr>
+                                <th>Pengumuman</th>
+                                <th>Status</th>
+                                <th>Tanggal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="announcementList">
+                            <tr>
+                                <td colspan="4" class="empty-row">Memuat pengumuman...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script src="announcements.js"></script>
+</body>
+</html>

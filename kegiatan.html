@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kegiatan - TK AL-Muhtar</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        #adminPage[hidden] {
+            display: none !important;
+        }
+
+        .activities-access {
+            width: min(680px, calc(100% - 32px));
+            margin: 48px auto;
+            border: 1px solid #e8edf4;
+            border-radius: 14px;
+            padding: 20px;
+            background: #fff;
+            color: #243e63;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .activities-intro {
+            margin: -10px 0 20px;
+            color: #64748b;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr);
+            align-items: start;
+            gap: 20px;
+        }
+
+        .activities-panel {
+            min-width: 0;
+            border: 1px solid #e8edf4;
+            border-radius: 18px;
+            padding: 22px;
+            background: #fff;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+
+        .activities-panel h2 {
+            margin-bottom: 18px;
+            color: #243e63;
+            font-size: 19px;
+        }
+
+        .activity-form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .activity-field label {
+            display: block;
+            margin-bottom: 6px;
+            color: #243e63;
+            font-weight: 800;
+        }
+
+        .activity-field input,
+        .activity-field textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: #fff;
+            color: #26364c;
+            font: inherit;
+        }
+
+        .activity-field textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .activity-form-actions,
+        .activity-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .activity-button {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            background: #477bb5;
+            color: #fff;
+            font: 800 14px 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+
+        .activity-button:hover {
+            background: #365f8f;
+        }
+
+        .activity-button.secondary {
+            border: 1px solid #cbd5e1;
+            background: #f4f7fb;
+            color: #243e63;
+        }
+
+        .activity-button.danger {
+            background: #b42318;
+        }
+
+        .activity-button.danger:hover {
+            background: #8f1d14;
+        }
+
+        .activity-button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .activity-message,
+        .activity-list-status {
+            min-height: 22px;
+            margin: 10px 0;
+            font-weight: 800;
+        }
+
+        .activity-message.success {
+            color: #166534;
+        }
+
+        .activity-message.error,
+        .activity-list-status.error {
+            color: #991b1b;
+        }
+
+        .activity-list-status {
+            color: #64748b;
+        }
+
+        .activity-empty {
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 28px 16px;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .activity-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .activity-card {
+            border: 1px solid #e8edf4;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafcff;
+        }
+
+        .activity-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .activity-card h3 {
+            color: #243e63;
+            font-size: 17px;
+            overflow-wrap: anywhere;
+        }
+
+        .activity-badge {
+            flex: 0 0 auto;
+            border-radius: 999px;
+            padding: 4px 9px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .activity-badge.inactive {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .activity-meta {
+            margin-top: 7px;
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .activity-description {
+            margin-top: 10px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .activity-actions {
+            margin-top: 14px;
+        }
+
+        @media (max-width: 1000px) {
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .main-content {
+                padding: 18px;
+            }
+
+            .activities-panel {
+                padding: 17px;
+            }
+
+            .activity-card-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="accessState" class="activities-access" role="status" aria-live="polite">
+    Memverifikasi akses Admin...
+</div>
+
+<div id="adminPage" class="admin-layout" hidden>
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Sistem Administrasi Sekolah</p>
+
+        <a href="admin.html">📊 Dashboard</a>
+        <a href="students.html">👧 Data Siswa</a>
+        <a href="teachers.html">👩‍🏫 Data Guru</a>
+        <a href="attendance.html">📋 Absensi</a>
+        <a href="development.html">🌱 Perkembangan Anak</a>
+        <a href="announcements.html">📢 Pengumuman</a>
+        <a href="kegiatan.html" class="active" aria-current="page">🎨 Kegiatan</a>
+        <a href="#">💰 Keuangan</a>
+        <a href="accounts.html">👤 Manajemen Akun</a>
+        <a href="settings.html">⚙️ Pengaturan</a>
+        <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="topbar">
+            <h1>Kegiatan</h1>
+            <div class="admin-profile">
+                <strong id="adminUsername">Admin</strong>
+                <span>Admin</span>
+            </div>
+        </div>
+
+        <p class="activities-intro">
+            Tambahkan dan kelola kegiatan sekolah yang tampil dalam daftar ini.
+        </p>
+        <p id="activityMessage" class="activity-message"
+            role="status" aria-live="polite"></p>
+
+        <div class="activities-grid">
+            <section class="activities-panel" aria-labelledby="activityFormTitle">
+                <h2 id="activityFormTitle">Tambah Kegiatan</h2>
+                <form id="activityForm" class="activity-form">
+                    <div class="activity-field">
+                        <label for="activityTitle">Nama kegiatan</label>
+                        <input id="activityTitle" name="title" required>
+                    </div>
+                    <div class="activity-field">
+                        <label for="activityDate">Tanggal kegiatan</label>
+                        <input id="activityDate" name="activity_date"
+                            type="date" required>
+                    </div>
+                    <div class="activity-field">
+                        <label for="activityLocation">Lokasi</label>
+                        <input id="activityLocation" name="location">
+                    </div>
+                    <div class="activity-field">
+                        <label for="activityDescription">Deskripsi</label>
+                        <textarea id="activityDescription"
+                            name="description"></textarea>
+                    </div>
+                    <div class="activity-form-actions">
+                        <button id="saveActivityButton"
+                            class="activity-button" type="submit">
+                            Simpan Kegiatan
+                        </button>
+                        <button id="cancelEditButton"
+                            class="activity-button secondary" type="button" hidden>
+                            Batal Edit
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="activities-panel" aria-labelledby="activityListTitle">
+                <h2 id="activityListTitle">Daftar Kegiatan</h2>
+                <p id="activityListStatus" class="activity-list-status"
+                    role="status" aria-live="polite">Memuat kegiatan...</p>
+                <div id="activityList" class="activity-list"></div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const supabase = createClient(
+    "https://ianbedmbrrmqhbpbbvnr.supabase.co",
+    "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8"
+);
+
+const accessState = document.getElementById("accessState");
+const adminPage = document.getElementById("adminPage");
+const activityForm = document.getElementById("activityForm");
+const activityList = document.getElementById("activityList");
+const activityListStatus = document.getElementById("activityListStatus");
+const activityMessage = document.getElementById("activityMessage");
+const saveActivityButton = document.getElementById("saveActivityButton");
+const cancelEditButton = document.getElementById("cancelEditButton");
+const adminLogoutButton = document.getElementById("adminLogout");
+
+let adminUserId = null;
+let editingActivityId = null;
+let activities = [];
+let mutationInProgress = false;
+
+function errorText(error) {
+    return error && error.message ? error.message : String(error);
+}
+
+function showActivityMessage(message, type) {
+    activityMessage.textContent = message;
+    activityMessage.className =
+        "activity-message" + (type ? " " + type : "");
+}
+
+function formatActivityDate(value) {
+    const [year, month, day] = value.split("-").map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    });
+}
+
+function makeActivityButton(label, action, activity, extraClass) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "activity-button" + (extraClass ? " " + extraClass : "");
+    button.textContent = label;
+    button.dataset.activityAction = action;
+    button.dataset.activityId = activity.id;
+    button.disabled = mutationInProgress;
+    return button;
+}
+
+function renderActivities() {
+    activityList.replaceChildren();
+
+    if (activities.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "activity-empty";
+        empty.textContent = "Belum ada kegiatan yang terdaftar.";
+        activityList.append(empty);
+        return;
+    }
+
+    for (const activity of activities) {
+        const card = document.createElement("article");
+        card.className = "activity-card";
+
+        const header = document.createElement("div");
+        header.className = "activity-card-header";
+
+        const title = document.createElement("h3");
+        title.textContent = activity.title;
+
+        const badge = document.createElement("span");
+        badge.className = "activity-badge" +
+            (activity.is_active ? "" : " inactive");
+        badge.textContent = activity.is_active ? "Aktif" : "Tidak aktif";
+        header.append(title, badge);
+        card.append(header);
+
+        const metadata = document.createElement("p");
+        metadata.className = "activity-meta";
+        metadata.textContent = formatActivityDate(activity.activity_date) +
+            (activity.location ? " · " + activity.location : "");
+        card.append(metadata);
+
+        if (activity.description) {
+            const description = document.createElement("p");
+            description.className = "activity-description";
+            description.textContent = activity.description;
+            card.append(description);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "activity-actions";
+        actions.append(
+            makeActivityButton("Edit", "edit", activity, "secondary"),
+            makeActivityButton(
+                activity.is_active ? "Nonaktifkan" : "Aktifkan",
+                "toggle",
+                activity,
+                "secondary"
+            ),
+            makeActivityButton("Hapus", "delete", activity, "danger")
+        );
+        card.append(actions);
+        activityList.append(card);
+    }
+}
+
+async function loadActivities() {
+    activityList.replaceChildren();
+    activityListStatus.className = "activity-list-status";
+    activityListStatus.textContent = "Memuat kegiatan...";
+
+    try {
+        const { data, error } = await supabase
+            .from("activities")
+            .select(
+                "id, title, description, activity_date, location, is_active"
+            )
+            .order("activity_date", { ascending: false })
+            .order("created_at", { ascending: false });
+
+        if (error) {
+            throw error;
+        }
+        if (!Array.isArray(data)) {
+            throw new Error("Respons daftar kegiatan tidak valid.");
+        }
+
+        activities = data;
+        renderActivities();
+        activityListStatus.textContent = activities.length
+            ? activities.length + " kegiatan."
+            : "";
+        return true;
+    } catch (error) {
+        console.error("Gagal memuat kegiatan:", error);
+        activityListStatus.className = "activity-list-status error";
+        activityListStatus.textContent =
+            "Gagal memuat kegiatan: " + errorText(error);
+        return false;
+    }
+}
+
+function resetActivityForm() {
+    activityForm.reset();
+    editingActivityId = null;
+    document.getElementById("activityFormTitle").textContent =
+        "Tambah Kegiatan";
+    saveActivityButton.textContent = "Simpan Kegiatan";
+    cancelEditButton.hidden = true;
+}
+
+function setMutationBusy(isBusy) {
+    mutationInProgress = isBusy;
+    saveActivityButton.disabled = isBusy;
+    cancelEditButton.disabled = isBusy;
+    activityList.querySelectorAll("button").forEach(button => {
+        button.disabled = isBusy;
+    });
+}
+
+function startEditing(activity) {
+    editingActivityId = activity.id;
+    document.getElementById("activityTitle").value = activity.title;
+    document.getElementById("activityDate").value = activity.activity_date;
+    document.getElementById("activityLocation").value =
+        activity.location || "";
+    document.getElementById("activityDescription").value =
+        activity.description || "";
+    document.getElementById("activityFormTitle").textContent =
+        "Edit Kegiatan";
+    saveActivityButton.textContent = "Simpan Perubahan";
+    cancelEditButton.hidden = false;
+    document.getElementById("activityTitle").focus();
+}
+
+async function performActivityMutation(successMessage, mutation) {
+    if (mutationInProgress) {
+        return;
+    }
+
+    setMutationBusy(true);
+    showActivityMessage("Memproses perubahan...", "");
+
+    try {
+        await mutation();
+        showActivityMessage(successMessage, "success");
+        await loadActivities();
+    } catch (error) {
+        console.error("Operasi kegiatan gagal:", error);
+        showActivityMessage(
+            "Operasi gagal: " + errorText(error),
+            "error"
+        );
+    } finally {
+        setMutationBusy(false);
+    }
+}
+
+activityForm.addEventListener("submit", async event => {
+    event.preventDefault();
+    if (mutationInProgress || !activityForm.reportValidity()) {
+        return;
+    }
+
+    const payload = {
+        title: document.getElementById("activityTitle").value.trim(),
+        description:
+            document.getElementById("activityDescription").value.trim() || null,
+        activity_date: document.getElementById("activityDate").value,
+        location:
+            document.getElementById("activityLocation").value.trim() || null
+    };
+
+    if (!payload.title) {
+        showActivityMessage("Nama kegiatan wajib diisi.", "error");
+        return;
+    }
+
+    await performActivityMutation(
+        editingActivityId
+            ? "Kegiatan berhasil diperbarui."
+            : "Kegiatan berhasil ditambahkan.",
+        async () => {
+            let result;
+            if (editingActivityId) {
+                result = await supabase
+                    .from("activities")
+                    .update(payload)
+                    .eq("id", editingActivityId)
+                    .select("id")
+                    .maybeSingle();
+            } else {
+                result = await supabase
+                    .from("activities")
+                    .insert({
+                        ...payload,
+                        is_active: true,
+                        created_by: adminUserId
+                    })
+                    .select("id")
+                    .maybeSingle();
+            }
+
+            if (result.error) {
+                throw result.error;
+            }
+            if (!result.data) {
+                throw new Error(
+                    "Tidak ada kegiatan yang tersimpan atau diperbarui."
+                );
+            }
+
+            resetActivityForm();
+        }
+    );
+});
+
+cancelEditButton.addEventListener("click", resetActivityForm);
+
+activityList.addEventListener("click", async event => {
+    const button = event.target.closest("[data-activity-action]");
+    if (!button || mutationInProgress) {
+        return;
+    }
+
+    const activity = activities.find(
+        item => item.id === button.dataset.activityId
+    );
+    if (!activity) {
+        showActivityMessage("Kegiatan tidak ditemukan.", "error");
+        return;
+    }
+
+    const action = button.dataset.activityAction;
+    if (action === "edit") {
+        startEditing(activity);
+        return;
+    }
+
+    if (action === "toggle") {
+        const nextActiveState = !activity.is_active;
+        await performActivityMutation(
+            nextActiveState
+                ? "Kegiatan berhasil diaktifkan."
+                : "Kegiatan berhasil dinonaktifkan.",
+            async () => {
+                const { data, error } = await supabase
+                    .from("activities")
+                    .update({ is_active: nextActiveState })
+                    .eq("id", activity.id)
+                    .select("id")
+                    .maybeSingle();
+
+                if (error) {
+                    throw error;
+                }
+                if (!data) {
+                    throw new Error(
+                        "Kegiatan tidak ditemukan atau tidak dapat diperbarui."
+                    );
+                }
+            }
+        );
+        return;
+    }
+
+    if (action === "delete") {
+        const confirmed = window.confirm(
+            `Hapus kegiatan "${activity.title}"? Tindakan ini tidak dapat dibatalkan.`
+        );
+        if (!confirmed) {
+            return;
+        }
+
+        await performActivityMutation(
+            "Kegiatan berhasil dihapus.",
+            async () => {
+                const { data, error } = await supabase
+                    .from("activities")
+                    .delete()
+                    .eq("id", activity.id)
+                    .select("id")
+                    .maybeSingle();
+
+                if (error) {
+                    throw error;
+                }
+                if (!data) {
+                    throw new Error(
+                        "Kegiatan tidak ditemukan atau tidak dapat dihapus."
+                    );
+                }
+            }
+        );
+    }
+});
+
+adminLogoutButton.addEventListener("click", async () => {
+    adminLogoutButton.disabled = true;
+    try {
+        const { error } = await supabase.auth.signOut({ scope: "local" });
+        if (error) {
+            throw error;
+        }
+
+        const { data, error: sessionError } =
+            await supabase.auth.getSession();
+        if (sessionError) {
+            throw sessionError;
+        }
+        if (data.session) {
+            throw new Error("Sesi Admin masih aktif setelah logout.");
+        }
+
+        window.location.replace("login.html");
+    } catch (error) {
+        console.error("Gagal logout Admin:", error);
+        showActivityMessage(
+            "Gagal logout: " + errorText(error),
+            "error"
+        );
+        adminLogoutButton.disabled = false;
+    }
+});
+
+async function redirectToLogin(signOut) {
+    if (signOut) {
+        const { error } = await supabase.auth.signOut({ scope: "local" });
+        if (error) {
+            console.error("Gagal mengakhiri sesi non-Admin:", error);
+        }
+    }
+
+    window.location.replace("login.html");
+}
+
+function showAccessError(error) {
+    console.error("Pemeriksaan akses Kegiatan gagal:", error);
+    accessState.textContent =
+        "Akses Admin belum dapat diverifikasi. Periksa koneksi atau masuk kembali. ";
+    accessState.setAttribute("role", "alert");
+
+    const loginLink = document.createElement("a");
+    loginLink.href = "login.html";
+    loginLink.textContent = "Buka halaman login.";
+    accessState.append(loginLink);
+}
+
+async function verifyAdmin() {
+    try {
+        const { data: sessionData, error: sessionError } =
+            await supabase.auth.getSession();
+        if (sessionError) {
+            throw sessionError;
+        }
+
+        const session = sessionData.session;
+        if (!session) {
+            await redirectToLogin(false);
+            return;
+        }
+
+        const { data: isAdmin, error: adminError } =
+            await supabase.rpc("is_admin");
+        if (adminError) {
+            throw adminError;
+        }
+        if (isAdmin !== true) {
+            await redirectToLogin(true);
+            return;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("username, role, is_active")
+            .eq("id", session.user.id)
+            .maybeSingle();
+        if (profileError) {
+            throw profileError;
+        }
+        if (
+            !profile ||
+            profile.role !== "admin" ||
+            profile.is_active !== true
+        ) {
+            await redirectToLogin(true);
+            return;
+        }
+
+        adminUserId = session.user.id;
+        document.getElementById("adminUsername").textContent =
+            profile.username || "Admin";
+        adminPage.hidden = false;
+        accessState.hidden = true;
+        await loadActivities();
+    } catch (error) {
+        showAccessError(error);
+    }
+}
+
+await verifyAdmin();
+</script>
+
+</body>
+</html>

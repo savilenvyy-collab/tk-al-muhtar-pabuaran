@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perkembangan Anak - TK AL-Muhtar</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .development-toolbar {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .development-toolbar label {
+            display: block;
+            margin-bottom: 7px;
+            color: #243e63;
+            font-weight: 800;
+        }
+
+        .development-toolbar input,
+        .development-toolbar select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+            box-sizing: border-box;
+        }
+
+        .development-layout {
+            display: grid;
+            grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+            gap: 18px;
+        }
+
+        .report-list,
+        .report-detail {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+
+        .report-list {
+            overflow: hidden;
+        }
+
+        .report-list-header,
+        .report-detail-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .report-list-header h2,
+        .report-detail-header h2 {
+            font-size: 17px;
+        }
+
+        .report-list-items {
+            max-height: 560px;
+            overflow-y: auto;
+        }
+
+        .report-item {
+            width: 100%;
+            border: 0;
+            border-bottom: 1px solid var(--border);
+            padding: 14px 16px;
+            background: var(--white);
+            color: var(--text);
+            text-align: left;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .report-item:hover,
+        .report-item.active {
+            background: var(--light-blue);
+        }
+
+        .report-item strong,
+        .report-item span {
+            display: block;
+        }
+
+        .report-item span {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .report-detail {
+            min-width: 0;
+        }
+
+        .report-detail-body {
+            padding: 20px;
+        }
+
+        .report-meta {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .report-meta div {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: #fafcff;
+        }
+
+        .report-meta strong,
+        .report-meta span {
+            display: block;
+        }
+
+        .report-meta span {
+            margin-top: 5px;
+        }
+
+        .aspect-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .aspect-card,
+        .teacher-notes {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafcff;
+        }
+
+        .aspect-card h3 {
+            margin-bottom: 8px;
+            color: #243e63;
+            font-size: 15px;
+        }
+
+        .aspect-card p,
+        .teacher-notes p {
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .teacher-notes {
+            margin-top: 14px;
+        }
+
+        .teacher-notes h3 {
+            margin-bottom: 8px;
+            color: #243e63;
+            font-size: 15px;
+        }
+
+        .development-message {
+            min-height: 24px;
+            margin-bottom: 16px;
+            color: #991b1b;
+            font-weight: 800;
+        }
+
+        .development-message.success {
+            color: #166534;
+        }
+
+        .empty-state {
+            padding: 24px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 1000px) {
+            .development-layout {
+                grid-template-columns: 280px minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .development-toolbar,
+            .development-layout,
+            .aspect-grid,
+            .report-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .report-list-items {
+                max-height: 320px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Sistem Administrasi Sekolah</p>
+
+        <a href="admin.html">📊 Dashboard</a>
+        <a href="students.html">👧 Data Siswa</a>
+        <a href="teachers.html">👩‍🏫 Data Guru</a>
+        <a href="attendance.html">📋 Absensi</a>
+        <a href="development.html" class="active">🌱 Perkembangan Anak</a>
+        <a href="announcements.html">📢 Pengumuman</a>
+        <a href="kegiatan.html">🎨 Kegiatan</a>
+        <a href="#">💰 Keuangan</a>
+        <a href="accounts.html">👤 Manajemen Akun</a>
+        <a href="settings.html">⚙️ Pengaturan</a>
+        <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="topbar">
+            <h1>Perkembangan Anak</h1>
+            <div class="admin-profile">👤 Admin TK</div>
+        </div>
+
+        <p id="developmentMessage" class="development-message"></p>
+
+        <div class="development-toolbar">
+            <div>
+                <label for="searchReport">Cari Nama Siswa</label>
+                <input id="searchReport" type="search"
+                    placeholder="Ketik nama siswa">
+            </div>
+            <div>
+                <label for="yearFilter">Tahun Ajaran</label>
+                <select id="yearFilter">
+                    <option value="">Semua tahun</option>
+                </select>
+            </div>
+            <div>
+                <label for="semesterFilter">Semester</label>
+                <select id="semesterFilter">
+                    <option value="">Semua semester</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="development-layout">
+            <section class="report-list" aria-label="Daftar laporan perkembangan">
+                <div class="report-list-header">
+                    <h2>Daftar Laporan</h2>
+                </div>
+                <div id="reportList" class="report-list-items">
+                    <div class="empty-state">Memuat laporan...</div>
+                </div>
+            </section>
+
+            <section class="report-detail" aria-live="polite">
+                <div class="report-detail-header">
+                    <h2>Detail Laporan</h2>
+                </div>
+                <div id="reportDetail" class="report-detail-body">
+                    <div class="empty-state">Pilih laporan untuk melihat detail.</div>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL = "https://ianbedmbrrmqhbpbbvnr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const developmentMessage =
+    document.getElementById("developmentMessage");
+const searchReport =
+    document.getElementById("searchReport");
+const yearFilter =
+    document.getElementById("yearFilter");
+const semesterFilter =
+    document.getElementById("semesterFilter");
+const reportList =
+    document.getElementById("reportList");
+const reportDetail =
+    document.getElementById("reportDetail");
+
+let allReports = [];
+let selectedReportId = null;
+
+document.body.style.display = "none";
+
+function escapeHTML(teks) {
+    return String(teks ?? "").replace(/[&<>"']/g, karakter => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[karakter]);
+}
+
+async function signOutAndRedirect() {
+    await supabase.auth.signOut();
+    window.location.replace("login.html");
+}
+
+async function checkAdmin() {
+    try {
+        const { data: sessionData, error: sessionError } =
+            await supabase.auth.getSession();
+
+        if (sessionError || !sessionData.session) {
+            await signOutAndRedirect();
+            return false;
+        }
+
+        const { data: isAdmin, error: rpcError } =
+            await supabase.rpc("is_admin");
+
+        if (rpcError || isAdmin !== true) {
+            await signOutAndRedirect();
+            return false;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("role, is_active")
+            .eq("id", sessionData.session.user.id)
+            .maybeSingle();
+
+        if (
+            profileError ||
+            !profile ||
+            profile.role !== "admin" ||
+            profile.is_active !== true
+        ) {
+            await signOutAndRedirect();
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error("Pemeriksaan akses Admin gagal:", error);
+        await signOutAndRedirect();
+        return false;
+    }
+}
+
+function renderYearOptions() {
+    const years = [...new Set(allReports
+        .map(report => report.academic_year)
+        .filter(Boolean))]
+        .sort((a, b) => b.localeCompare(a));
+
+    const selectedYear = yearFilter.value;
+    yearFilter.innerHTML =
+        '<option value="">Semua tahun</option>' +
+        years.map(year =>
+            `<option value="${escapeHTML(year)}">${escapeHTML(year)}</option>`
+        ).join("");
+    yearFilter.value = years.includes(selectedYear) ? selectedYear : "";
+}
+
+function getFilteredReports() {
+    const search = searchReport.value.trim().toLowerCase();
+    const year = yearFilter.value;
+    const semester = semesterFilter.value;
+
+    return allReports.filter(report => {
+        const studentName =
+            report.students?.full_name ||
+            "";
+        const matchSearch =
+            !search || studentName.toLowerCase().includes(search);
+        const matchYear =
+            !year || report.academic_year === year;
+        const matchSemester =
+            !semester || String(report.semester) === semester;
+
+        return matchSearch && matchYear && matchSemester;
+    });
+}
+
+function renderReportList() {
+    const reports = getFilteredReports();
+
+    if (reports.length === 0) {
+        reportList.innerHTML =
+            '<div class="empty-state">Tidak ada laporan yang sesuai.</div>';
+        if (!selectedReportId) {
+            reportDetail.innerHTML =
+                '<div class="empty-state">Pilih laporan untuk melihat detail.</div>';
+        }
+        return;
+    }
+
+    if (
+        !selectedReportId ||
+        !reports.some(report => report.id === selectedReportId)
+    ) {
+        selectedReportId = reports[0].id;
+    }
+
+    reportList.innerHTML = reports.map(report => {
+        const studentName =
+            report.students?.full_name || "Nama siswa tidak tersedia";
+        const studentNumber =
+            report.students?.student_number
+                ? ` - ${report.students.student_number}`
+                : "";
+
+        return `
+            <button type="button"
+                class="report-item ${report.id === selectedReportId ? "active" : ""}"
+                data-report-id="${escapeHTML(report.id)}">
+                <strong>${escapeHTML(studentName)}${escapeHTML(studentNumber)}</strong>
+                <span>${escapeHTML(report.academic_year)} | Semester ${escapeHTML(report.semester)}</span>
+            </button>
+        `;
+    }).join("");
+
+    reportList.querySelectorAll("[data-report-id]")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                selectedReportId = button.dataset.reportId;
+                renderReportList();
+                renderReportDetail();
+            });
+        });
+
+    renderReportDetail();
+}
+
+function renderReportDetail() {
+    const report = allReports.find(item =>
+        item.id === selectedReportId
+    );
+
+    if (!report) {
+        reportDetail.innerHTML =
+            '<div class="empty-state">Pilih laporan untuk melihat detail.</div>';
+        return;
+    }
+
+    const studentName =
+        report.students?.full_name || "Nama siswa tidak tersedia";
+    const aspectItems = [
+        ["Nilai Agama dan Moral", report.religious_moral],
+        ["Fisik Motorik", report.physical_motor],
+        ["Kognitif", report.cognitive],
+        ["Bahasa", report.language],
+        ["Sosial Emosional", report.social_emotional],
+        ["Seni", report.art]
+    ];
+
+    reportDetail.innerHTML = `
+        <div class="report-meta">
+            <div>
+                <strong>Nama Anak</strong>
+                <span>${escapeHTML(studentName)}</span>
+            </div>
+            <div>
+                <strong>Tahun Ajaran</strong>
+                <span>${escapeHTML(report.academic_year)}</span>
+            </div>
+            <div>
+                <strong>Semester</strong>
+                <span>Semester ${escapeHTML(report.semester)}</span>
+            </div>
+        </div>
+
+        <div class="aspect-grid">
+            ${aspectItems.map(([title, value]) => `
+                <article class="aspect-card">
+                    <h3>${escapeHTML(title)}</h3>
+                    <p>${escapeHTML(value || "-")}</p>
+                </article>
+            `).join("")}
+        </div>
+
+        <article class="teacher-notes">
+            <h3>Catatan Guru</h3>
+            <p>${escapeHTML(report.teacher_notes || "-")}</p>
+        </article>
+    `;
+}
+
+async function loadReports() {
+    developmentMessage.textContent = "Memuat laporan...";
+
+    const { data, error } = await supabase
+        .from("child_development_reports")
+        .select(`
+            id,
+            student_id,
+            academic_year,
+            semester,
+            religious_moral,
+            physical_motor,
+            cognitive,
+            language,
+            social_emotional,
+            art,
+            teacher_notes,
+            recorded_by,
+            created_at,
+            updated_at,
+            students (
+                full_name,
+                student_number
+            )
+        `)
+        .order("academic_year", { ascending: false })
+        .order("semester", { ascending: true });
+
+    if (error) {
+        developmentMessage.textContent =
+            "Gagal memuat laporan perkembangan: " + error.message;
+        reportList.innerHTML =
+            '<div class="empty-state">Laporan belum dapat dimuat.</div>';
+        console.error(error);
+        return;
+    }
+
+    allReports = data || [];
+    developmentMessage.textContent =
+        allReports.length === 0
+            ? "Belum ada laporan perkembangan."
+            : "";
+    renderYearOptions();
+    renderReportList();
+}
+
+searchReport.addEventListener("input", renderReportList);
+yearFilter.addEventListener("change", renderReportList);
+semesterFilter.addEventListener("change", renderReportList);
+
+document.getElementById("adminLogout").addEventListener("click", async () => {
+    await signOutAndRedirect();
+});
+
+(async () => {
+    if (!(await checkAdmin())) return;
+
+    document.body.style.display = "block";
+    await loadReports();
+})();
+</script>
+
+</body>
+</html>

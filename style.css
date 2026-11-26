@@ -1,0 +1,246 @@
+
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f9ff;
+    color: #344054;
+    min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+    background: linear-gradient(135deg, #64b5f6, #81d4fa);
+    color: white;
+    text-align: center;
+    padding: 45px 20px;
+}
+
+.header h1 {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+.header p {
+    font-size: 17px;
+}
+
+/* NAVIGASI */
+.navbar {
+    background: white;
+    padding: 18px;
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #3286c8;
+    font-weight: bold;
+}
+
+.navbar a:hover {
+    color: #ff9800;
+}
+
+/* KONTEN */
+main {
+    max-width: 1100px;
+    margin: auto;
+    padding: 35px 20px;
+}
+
+/* SAMBUTAN */
+.welcome {
+    background: white;
+    padding: 40px 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.05);
+    margin-bottom: 40px;
+}
+
+.welcome h2 {
+    color: #3286c8;
+    font-size: 28px;
+    margin-bottom: 18px;
+}
+
+.welcome p {
+    line-height: 1.7;
+    margin-bottom: 8px;
+}
+
+/* LAYANAN */
+.features h2 {
+    text-align: center;
+    color: #3286c8;
+    margin-bottom: 25px;
+}
+
+.feature-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.feature-card {
+    background: white;
+    padding: 30px 15px;
+    border-radius: 18px;
+    text-align: center;
+    font-size: 35px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-card h3 {
+    font-size: 17px;
+    color: #475467;
+    margin-top: 15px;
+}
+
+/* FOOTER */
+footer {
+    background: #3286c8;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+/* TAMPILAN HP */
+@media (max-width: 650px) {
+    .header h1 {
+        font-size: 25px;
+    }
+
+    .navbar {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .feature-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .welcome h2 {
+        font-size: 23px;
+    }
+}
+
+/* HALAMAN LOGIN */
+.login-field {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.login-field label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #475467;
+}
+
+.login-field input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #d0d5dd;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+}
+
+.login-field input:focus {
+    border-color: #3286c8;
+    box-shadow: 0 0 0 3px rgba(50, 134, 200, 0.12);
+}
+
+.login-button {
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+    background: #3286c8;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background: #236da8;
+}
+
+#loginForm {
+    max-width: 420px;
+    margin: 25px auto;
+}
+
+.forgot-password-link,
+.secondary-button {
+    display: block;
+    border: none;
+    background: transparent;
+    color: #3286c8;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 8px auto 16px;
+}
+
+.forgot-password-link:hover,
+.forgot-password-link:focus {
+    text-decoration: underline;
+}
+
+.forgot-password-form {
+    max-width: 420px;
+    margin: 20px auto;
+    text-align: left;
+}
+
+.forgot-password-form .login-button {
+    margin-bottom: 8px;
+}
+
+.secondary-button {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    background: #e8eef7;
+    color: #475467;
+}
+
+.secondary-button:hover {
+    background: #dfe7f1;
+}
+
+.recovery-message {
+    max-width: 420px;
+    margin: 12px auto;
+    color: #475467;
+    font-weight: bold;
+}
+
+[hidden] {
+    display: none !important;
+}

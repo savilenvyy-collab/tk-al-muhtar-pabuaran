@@ -1,0 +1,241 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TK AL-Muhtar Pabuaran</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="header">
+        <h1>TK AL-Muhtar Pabuaran</h1>
+        <p>Selamat Datang Kembali!</p>
+    </header>
+
+    <main>
+        <section class="welcome">
+            <h2>Login Akun 🔐</h2>
+            <p>Silakan masuk menggunakan akun yang sudah terdaftar.</p>
+
+            <p id="loginMessage"></p>
+
+            <form id="loginForm">
+                <div class="login-field">
+                    <label for="username">Username</label>
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Masukkan username"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="login-field">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Masukkan password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="login-button">
+                    Masuk
+                </button>
+            </form>
+
+            <button type="button" id="forgotPasswordLink" class="forgot-password-link">
+                Lupa Password?
+            </button>
+
+            <form id="forgotPasswordForm" class="forgot-password-form" hidden>
+                <div class="login-field">
+                    <label for="recoveryEmail">Email terdaftar</label>
+                    <input
+                        type="email"
+                        id="recoveryEmail"
+                        placeholder="Masukkan email"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+                <button type="submit" class="login-button">
+                    Kirim Tautan Pemulihan
+                </button>
+                <button type="button" id="cancelForgotPassword" class="secondary-button">
+                    Batal
+                </button>
+            </form>
+
+            <p id="recoveryMessage" class="recovery-message" role="status"></p>
+
+            <p><a href="index.html">Kembali ke Beranda</a></p>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 TK AL-Muhtar Pabuaran</p>
+    </footer>
+
+    <script type="module">
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        // Ganti dengan informasi project Supabase milikmu
+        const SUPABASE_URL = "https://ianbedmbrrmqhbpbbvnr.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8";
+
+        const supabase = createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+        const form = document.getElementById("loginForm");
+        const message = document.getElementById("loginMessage");
+        const forgotPasswordLink =
+            document.getElementById("forgotPasswordLink");
+        const forgotPasswordForm =
+            document.getElementById("forgotPasswordForm");
+        const cancelForgotPassword =
+            document.getElementById("cancelForgotPassword");
+        const recoveryEmail =
+            document.getElementById("recoveryEmail");
+        const recoveryMessage =
+            document.getElementById("recoveryMessage");
+
+        function tampilkanDiagnostikLogin(teks) {
+            const baris = [
+                "[Diagnostik Login]",
+                teks
+            ].join("\n");
+
+            console.info(baris);
+            message.textContent =
+                baris.replace("[Diagnostik Login]\n", "");
+        }
+
+        forgotPasswordLink.addEventListener("click", () => {
+            forgotPasswordForm.hidden = false;
+            forgotPasswordLink.hidden = true;
+            recoveryEmail.focus();
+        });
+
+        cancelForgotPassword.addEventListener("click", () => {
+            forgotPasswordForm.hidden = true;
+            forgotPasswordLink.hidden = false;
+            recoveryMessage.textContent = "";
+            forgotPasswordForm.reset();
+        });
+
+        forgotPasswordForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const email = recoveryEmail.value.trim();
+            const button = forgotPasswordForm.querySelector("button[type='submit']");
+            button.disabled = true;
+            recoveryMessage.textContent =
+                "Mengirim tautan pemulihan...";
+
+            try {
+                const redirectTo =
+                    new URL("reset-password.html", window.location.href).href;
+                const { error } =
+                    await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo
+                    });
+
+                if (error) throw error;
+
+                recoveryMessage.textContent =
+                    "Tautan pemulihan telah dikirim. Periksa kotak masuk dan folder spam email Anda.";
+                forgotPasswordForm.reset();
+            } catch (error) {
+                recoveryMessage.textContent =
+                    "Gagal mengirim tautan pemulihan: " + error.message;
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value;
+
+            message.textContent = "Sedang memeriksa akun...";
+            
+            const button = form.querySelector("button");
+            button.disabled = true;
+
+            try {
+                const response = await fetch(
+                    `${SUPABASE_URL}/functions/v1/login-username`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "apikey": SUPABASE_KEY,
+                            "Authorization": `Bearer ${SUPABASE_KEY}`
+                        },
+                        body: JSON.stringify({
+                            username,
+                            password
+                        })
+                    }
+                );
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || "Login gagal");
+                }
+
+                const { error } = await supabase.auth.setSession({
+                    access_token: result.session.access_token,
+                    refresh_token: result.session.refresh_token
+                });
+
+                if (error) throw error;
+
+                const { data: sessionData, error: sessionError } =
+                    await supabase.auth.getSession();
+
+                tampilkanDiagnostikLogin(
+                    `getSession() menemukan sesi: ${sessionData?.session ? "Ya" : "Tidak"}\n` +
+                    `session.user.id tersedia: ${sessionData?.session?.user?.id ? "Ya" : "Tidak"}\n` +
+                    `Error getSession(): ${sessionError ? sessionError.message : "Tidak ada"}`
+                );
+
+                const diagnostikLogin =
+                    message.textContent;
+                message.textContent =
+                    "Login berhasil!\n" + diagnostikLogin;
+
+                const role = result.profile.role;
+
+                if (role === "admin") {
+                    window.location.href = "admin.html";
+                } else if (role === "guru") {
+                    window.location.href = "guru.html";
+                } else if (role === "parent") {
+                    window.location.href = "parent.html";
+                } else {
+                    await supabase.auth.signOut();
+                    message.textContent = "Role akun tidak dikenali.";
+                }
+
+            } catch (error) {
+                message.textContent = error.message;
+            } finally {
+                button.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Orang Tua - TK AL-Muhtar</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        body {
+            background: #f4f7fb;
+        }
+
+        .parent-shell {
+            min-height: 100vh;
+        }
+
+        .parent-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 18px 28px;
+            background: #243e63;
+            color: #fff;
+        }
+
+        .parent-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .parent-brand-mark {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #477bb5;
+            font-size: 22px;
+        }
+
+        .parent-brand h1 {
+            font-size: 20px;
+        }
+
+        .parent-brand p {
+            margin-top: 3px;
+            color: #bdcce0;
+            font-size: 13px;
+        }
+
+        .parent-profile {
+            text-align: right;
+        }
+
+        .parent-profile strong,
+        .parent-profile span {
+            display: block;
+        }
+
+        .parent-profile span {
+            margin-top: 3px;
+            color: #bdcce0;
+            font-size: 12px;
+        }
+
+        .parent-logout {
+            margin-top: 9px;
+            border: 1px solid #8da6c3;
+            border-radius: 8px;
+            padding: 8px 11px;
+            background: #36577f;
+            color: #fff;
+            font: 800 13px 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+
+        .parent-logout:hover {
+            background: #477bb5;
+        }
+
+        .parent-logout:disabled {
+            opacity: .65;
+            cursor: wait;
+        }
+
+        .parent-nav {
+            display: flex;
+            gap: 8px;
+            padding: 10px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e8edf4;
+            overflow-x: auto;
+        }
+
+        .parent-nav button {
+            flex: 0 0 auto;
+            border: 0;
+            border-radius: 10px;
+            padding: 10px 14px;
+            background: transparent;
+            color: #477bb5;
+            font: 800 14px 'Nunito', sans-serif;
+            cursor: pointer;
+        }
+
+        .parent-nav button:hover,
+        .parent-nav button.active {
+            background: #eaf3fc;
+            color: #243e63;
+        }
+
+        .parent-main {
+            width: min(1120px, calc(100% - 32px));
+            margin: 24px auto 40px;
+        }
+
+        .parent-message {
+            min-height: 24px;
+            margin-bottom: 16px;
+            color: #991b1b;
+            font-weight: 800;
+        }
+
+        .parent-message.success {
+            color: #166534;
+        }
+
+        .child-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .child-card {
+            border: 1px solid #e8edf4;
+            border-radius: 14px;
+            padding: 14px 16px;
+            background: #fff;
+            color: #26364c;
+            text-align: left;
+            font: inherit;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+
+        .child-card:hover,
+        .child-card.active {
+            border-color: #477bb5;
+            background: #eaf3fc;
+        }
+
+        .child-card strong,
+        .child-card span {
+            display: block;
+        }
+
+        .child-card span {
+            margin-top: 5px;
+            color: #8290a3;
+            font-size: 13px;
+        }
+
+        .report-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .report-controls label {
+            display: block;
+            margin-bottom: 7px;
+            color: #243e63;
+            font-weight: 800;
+        }
+
+        .report-controls select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #fff;
+            font: inherit;
+        }
+
+        .report-panel {
+            background: #fff;
+            border: 1px solid #e8edf4;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+            overflow: hidden;
+        }
+
+        .report-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 20px;
+            border-bottom: 1px solid #e8edf4;
+        }
+
+        .report-panel-header h2 {
+            font-size: 18px;
+        }
+
+        .report-period {
+            color: #477bb5;
+            font-weight: 800;
+        }
+
+        .report-panel-body {
+            padding: 20px;
+        }
+
+        .aspect-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .aspect-card,
+        .teacher-notes {
+            border: 1px solid #e8edf4;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafcff;
+        }
+
+        .aspect-card h3,
+        .teacher-notes h3 {
+            margin-bottom: 8px;
+            color: #243e63;
+            font-size: 15px;
+        }
+
+        .aspect-card p,
+        .teacher-notes p {
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .teacher-notes {
+            margin-top: 14px;
+        }
+
+        .empty-state {
+            padding: 28px 20px;
+            color: #8290a3;
+            text-align: center;
+        }
+
+        .daily-report-child {
+            margin-bottom: 18px;
+        }
+
+        .daily-report-child:last-child {
+            margin-bottom: 0;
+        }
+
+        .daily-report-child-name {
+            margin: 0 0 10px;
+            color: #243e63;
+            font-size: 16px;
+        }
+
+        .daily-report-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .daily-report-card {
+            border: 1px solid #e8edf4;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafcff;
+        }
+
+        .daily-report-date {
+            display: block;
+            margin-bottom: 12px;
+            color: #477bb5;
+            font-weight: 800;
+        }
+
+        .parent-section {
+            display: none;
+        }
+
+        .parent-section.active {
+            display: block;
+        }
+
+        .section-heading {
+            margin-bottom: 16px;
+            color: #243e63;
+        }
+
+        .home-welcome,
+        .info-panel,
+        .cash-summary,
+        .announcement-panel,
+        .attendance-panel {
+            background: #fff;
+            border: 1px solid #e8edf4;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+
+        .home-welcome {
+            padding: 24px;
+            border-left: 5px solid #477bb5;
+        }
+
+        .home-welcome h2 {
+            margin-bottom: 8px;
+            color: #243e63;
+        }
+
+        .home-welcome p,
+        .info-panel p,
+        .announcement-panel p,
+        .cash-summary p {
+            line-height: 1.7;
+        }
+
+        .home-grid,
+        .cash-grid,
+        .announcement-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 16px;
+        }
+
+        .home-card,
+        .cash-summary,
+        .info-panel,
+        .announcement-panel {
+            padding: 18px;
+        }
+
+        .home-card,
+        .cash-summary,
+        .info-panel,
+        .announcement-panel {
+            border: 1px solid #e8edf4;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .home-card h3,
+        .cash-summary h3,
+        .info-panel h3,
+        .announcement-panel h3 {
+            margin-bottom: 8px;
+            color: #243e63;
+            font-size: 16px;
+        }
+
+        .attendance-panel {
+            overflow: hidden;
+        }
+
+        .attendance-toolbar {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding: 18px 20px;
+            border-bottom: 1px solid #e8edf4;
+        }
+
+        .attendance-toolbar label {
+            display: block;
+            margin-bottom: 7px;
+            color: #243e63;
+            font-weight: 800;
+        }
+
+        .attendance-toolbar select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #fff;
+            font: inherit;
+        }
+
+        .attendance-table-wrap {
+            overflow-x: auto;
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 520px;
+        }
+
+        .attendance-table th,
+        .attendance-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e8edf4;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .attendance-table th {
+            background: #f4f7fb;
+            color: #243e63;
+        }
+
+        .attendance-status {
+            display: inline-block;
+            border-radius: 999px;
+            padding: 5px 10px;
+            background: #eaf3fc;
+            color: #243e63;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        @media (max-width: 700px) {
+            .parent-header {
+                align-items: flex-start;
+                flex-wrap: wrap;
+                padding: 16px;
+            }
+
+            .parent-nav {
+                padding: 8px 12px;
+            }
+
+            .parent-profile {
+                max-width: none;
+                text-align: right;
+            }
+
+            .parent-main {
+                width: min(100% - 24px, 1120px);
+                margin-top: 16px;
+            }
+
+            .report-controls,
+            .aspect-grid,
+            .home-grid,
+            .cash-grid,
+            .announcement-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-panel-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="parent-shell">
+    <header class="parent-header">
+        <div class="parent-brand">
+            <div class="parent-brand-mark">🌱</div>
+            <div>
+                <h1>TK AL-Muhtar Pabuaran</h1>
+                <p>Portal Orang Tua</p>
+            </div>
+        </div>
+        <div class="parent-profile">
+            <strong id="parentName">Memuat...</strong>
+            <span>Orang Tua</span>
+            <button type="button" id="parentLogout" class="parent-logout">
+                🚪 Logout
+            </button>
+        </div>
+    </header>
+
+    <nav class="parent-nav" aria-label="Navigasi Portal Orang Tua">
+        <button type="button" class="active" data-parent-section="beranda">Beranda</button>
+        <button type="button" data-parent-section="kehadiran">Daftar Hadir</button>
+        <button type="button" data-parent-section="perkembangan">Perkembangan Anak</button>
+        <button type="button" data-parent-section="kas" hidden>Kas Mingguan</button>
+        <button type="button" data-parent-section="pengumuman">Pengumuman</button>
+        <button type="button" data-parent-section="kegiatan">Kegiatan</button>
+        <button type="button" data-parent-section="harian">Informasi Harian</button>
+    </nav>
+
+    <main class="parent-main">
+        <p id="parentMessage" class="parent-message"></p>
+        <div id="childSelector" class="child-selector"></div>
+
+        <section id="section-beranda" class="parent-section active">
+            <h2 class="section-heading">Beranda</h2>
+            <div class="home-welcome">
+                <h2 id="homeWelcomeTitle">Selamat Datang</h2>
+                <p>Pantau informasi kehadiran, perkembangan, dan kegiatan anak melalui portal ini.</p>
+            </div>
+            <div class="home-grid">
+                <article class="home-card">
+                    <h3>Perkembangan Anak</h3>
+                    <p>Buka laporan perkembangan untuk melihat nilai pada setiap aspek dan catatan guru.</p>
+                </article>
+                <article class="home-card">
+                    <h3>Informasi Sekolah</h3>
+                    <p>Pengumuman dan informasi harian tersedia pada menu masing-masing.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="section-kehadiran" class="parent-section">
+            <h2 class="section-heading">Daftar Hadir</h2>
+            <div class="attendance-panel">
+                <div class="attendance-toolbar">
+                    <div>
+                        <label for="attendanceChildFilter">Anak</label>
+                        <select id="attendanceChildFilter">
+                            <option value="">Pilih anak</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="attendanceContent" class="attendance-table-wrap">
+                    <div class="empty-state">Pilih anak untuk melihat riwayat kehadiran.</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-perkembangan" class="parent-section">
+            <h2 class="section-heading">Perkembangan Anak</h2>
+            <div class="report-controls">
+                <div>
+                    <label for="parentYearFilter">Tahun Ajaran</label>
+                    <select id="parentYearFilter">
+                        <option value="">Semua tahun</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="parentSemesterFilter">Semester</label>
+                    <select id="parentSemesterFilter">
+                        <option value="">Semua semester</option>
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <section class="report-panel">
+                <div class="report-panel-header">
+                    <h2 id="selectedChildName">Pilih Anak</h2>
+                    <span id="reportPeriod" class="report-period"></span>
+                </div>
+                <div id="reportContent" class="report-panel-body">
+                    <div class="empty-state">Memuat laporan perkembangan...</div>
+                </div>
+            </section>
+        </section>
+
+        <section id="section-kas" class="parent-section">
+            <h2 class="section-heading">Kas Mingguan</h2>
+            <div class="cash-grid">
+                <article class="cash-summary">
+                    <h3>Status Pembayaran</h3>
+                    <p>Informasi pembayaran kas belum tersedia.</p>
+                    <p><strong>Total tagihan:</strong> Belum tersedia</p>
+                    <p><strong>Minggu sudah dibayar:</strong> Belum tersedia</p>
+                    <p><strong>Minggu belum dibayar:</strong> Belum tersedia</p>
+                    <p><strong>Jumlah tunggakan:</strong> Belum tersedia</p>
+                </article>
+                <article class="cash-summary">
+                    <h3>Riwayat Pembayaran</h3>
+                    <p>Belum ada riwayat pembayaran yang dapat ditampilkan.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="section-pengumuman" class="parent-section">
+            <h2 class="section-heading">Pengumuman</h2>
+            <div id="announcementContent" class="announcement-grid">
+                <article class="announcement-panel">
+                    <h3>Pengumuman</h3>
+                    <p>Memuat pengumuman...</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="section-kegiatan" class="parent-section">
+            <h2 class="section-heading">Kegiatan Sekolah</h2>
+            <div id="activitiesContent" class="announcement-grid" aria-live="polite">
+                <article class="announcement-panel">
+                    <h3>Kegiatan Sekolah</h3>
+                    <p>Memuat kegiatan...</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="section-harian" class="parent-section">
+            <h2 class="section-heading">Informasi Harian</h2>
+            <div id="dailyReportContent" class="info-panel">
+                <h3>Informasi Harian Anak</h3>
+                <div class="empty-state">Memuat informasi harian...</div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL = "https://ianbedmbrrmqhbpbbvnr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const parentName = document.getElementById("parentName");
+const parentMessage = document.getElementById("parentMessage");
+const parentLogoutButton = document.getElementById("parentLogout");
+const childSelector = document.getElementById("childSelector");
+const parentYearFilter = document.getElementById("parentYearFilter");
+const parentSemesterFilter =
+    document.getElementById("parentSemesterFilter");
+const selectedChildName = document.getElementById("selectedChildName");
+const reportPeriod = document.getElementById("reportPeriod");
+const reportContent = document.getElementById("reportContent");
+const attendanceChildFilter =
+    document.getElementById("attendanceChildFilter");
+const attendanceContent =
+    document.getElementById("attendanceContent");
+const announcementContent =
+    document.getElementById("announcementContent");
+const activitiesContent =
+    document.getElementById("activitiesContent");
+const dailyReportContent =
+    document.getElementById("dailyReportContent");
+const homeWelcomeTitle =
+    document.getElementById("homeWelcomeTitle");
+const parentNavButtons =
+    [...document.querySelectorAll("[data-parent-section]")];
+const parentSections =
+    [...document.querySelectorAll(".parent-section")];
+
+let connectedChildren = [];
+let allReports = [];
+let selectedChildId = null;
+
+document.body.style.display = "none";
+
+function escapeHTML(teks) {
+    return String(teks ?? "").replace(/[&<>"']/g, karakter => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[karakter]);
+}
+
+function dapatkanSapaanOrangTua() {
+    const hubungan = [...new Set(
+        connectedChildren
+            .map(child => String(child.relationship || "").trim())
+            .filter(Boolean)
+    )];
+
+    if (hubungan.length === 0) {
+        return "Selamat Datang, Bapak/Ibu";
+    }
+
+    if (hubungan.length > 1) {
+        return "Selamat Datang, Bapak/Ibu";
+    }
+
+    if (hubungan[0] === "Ayah") {
+        return "Selamat Datang, Bapak";
+    }
+
+    if (hubungan[0] === "Ibu") {
+        return "Selamat Datang, Ibu";
+    }
+
+    if (hubungan[0] === "Wali") {
+        return "Selamat Datang, Bapak/Ibu Wali";
+    }
+
+    return "Selamat Datang, Bapak/Ibu";
+}
+
+async function signOutAndRedirect() {
+    await supabase.auth.signOut({ scope: "local" });
+    window.location.replace("login.html");
+}
+
+async function logoutParent() {
+    parentLogoutButton.disabled = true;
+    parentLogoutButton.textContent = "Keluar...";
+
+    try {
+        const { error } = await supabase.auth.signOut({ scope: "local" });
+        if (error) {
+            throw error;
+        }
+
+        const { data: sessionData, error: sessionError } =
+            await supabase.auth.getSession();
+        if (sessionError) {
+            throw sessionError;
+        }
+        if (sessionData.session) {
+            throw new Error("Sesi akun masih aktif setelah logout.");
+        }
+
+        window.location.replace("login.html");
+    } catch (error) {
+        console.error("Gagal logout Orang Tua:", error);
+        const message = error && error.message ? error.message : String(error);
+        parentMessage.textContent = "Gagal logout: " + message;
+        parentLogoutButton.disabled = false;
+        parentLogoutButton.textContent = "🚪 Logout";
+    }
+}
+
+async function checkParent() {
+    try {
+        const { data: sessionData, error: sessionError } =
+            await supabase.auth.getSession();
+
+        if (sessionError || !sessionData.session) {
+            await signOutAndRedirect();
+            return false;
+        }
+
+        const { data: profile, error: profileError } = await supabase
+            .from("profiles")
+            .select("id, full_name, username, role, is_active")
+            .eq("id", sessionData.session.user.id)
+            .maybeSingle();
+
+        if (
+            profileError ||
+            !profile ||
+            profile.role !== "parent" ||
+            profile.is_active !== true
+        ) {
+            await signOutAndRedirect();
+            return false;
+        }
+
+        parentName.textContent =
+            profile.full_name || profile.username || "Orang Tua";
+        return true;
+    } catch (error) {
+        console.error("Pemeriksaan akses Parent gagal:", error);
+        await signOutAndRedirect();
+        return false;
+    }
+}
+
+async function loadConnectedChildren() {
+    const { data: sessionData, error: sessionError } =
+        await supabase.auth.getSession();
+
+    if (sessionError || !sessionData.session) {
+        await signOutAndRedirect();
+        return false;
+    }
+
+    const { data: parentRow, error: parentError } = await supabase
+        .from("parents")
+        .select("id")
+        .eq("user_id", sessionData.session.user.id)
+        .maybeSingle();
+
+    if (parentError) {
+        parentMessage.textContent =
+            "Gagal memuat data orang tua: " + parentError.message;
+        return false;
+    }
+
+    if (!parentRow) {
+        connectedChildren = [];
+        parentMessage.textContent =
+            "Belum ada anak yang terhubung dengan akun ini.";
+        renderChildSelector();
+        return true;
+    }
+
+    const { data: links, error: linksError } = await supabase
+        .from("student_parents")
+        .select(`
+            relationship,
+            student_id,
+            students (
+                id,
+                full_name,
+                student_number
+            )
+        `)
+        .eq("parent_id", parentRow.id);
+
+    if (linksError) {
+        parentMessage.textContent =
+            "Gagal memuat data anak: " + linksError.message;
+        return false;
+    }
+
+    const uniqueChildren = new Map();
+
+    (links || []).forEach(link => {
+        if (!link.students) return;
+
+        uniqueChildren.set(link.student_id, {
+            id: link.student_id,
+            full_name: link.students.full_name,
+            student_number: link.students.student_number,
+            relationship: link.relationship
+        });
+    });
+
+    connectedChildren = [...uniqueChildren.values()]
+        .sort((a, b) =>
+            (a.full_name || "").localeCompare(b.full_name || "")
+        );
+
+    if (connectedChildren.length === 0) {
+        parentMessage.textContent =
+            "Belum ada anak yang terhubung dengan akun ini.";
+    }
+
+    if (
+        !selectedChildId ||
+        !connectedChildren.some(child => child.id === selectedChildId)
+    ) {
+        selectedChildId =
+            connectedChildren.length > 0
+                ? connectedChildren[0].id
+                : null;
+    }
+
+    homeWelcomeTitle.textContent = dapatkanSapaanOrangTua();
+    renderChildSelector();
+    return true;
+}
+
+function renderChildSelector() {
+    if (connectedChildren.length === 0) {
+        childSelector.innerHTML = "";
+        attendanceChildFilter.innerHTML =
+            '<option value="">Pilih anak</option>';
+        selectedChildName.textContent = "Belum ada anak";
+        reportPeriod.textContent = "";
+        reportContent.innerHTML =
+            '<div class="empty-state">Belum ada anak yang terhubung.</div>';
+        attendanceContent.innerHTML =
+            '<div class="empty-state">Belum ada anak yang terhubung.</div>';
+        return;
+    }
+
+    childSelector.innerHTML = connectedChildren.map(child => `
+        <button type="button"
+            class="child-card ${child.id === selectedChildId ? "active" : ""}"
+            data-child-id="${escapeHTML(child.id)}">
+            <strong>${escapeHTML(child.full_name)}</strong>
+            <span>
+                ${escapeHTML(child.relationship || "Orang Tua")}
+                ${child.student_number
+                    ? ` | No. Induk ${escapeHTML(child.student_number)}`
+                    : ""}
+            </span>
+        </button>
+    `).join("");
+
+    const selectedAttendance =
+        attendanceChildFilter.value ||
+        selectedChildId ||
+        "";
+    attendanceChildFilter.innerHTML =
+        connectedChildren.map(child =>
+            `<option value="${escapeHTML(child.id)}">
+                ${escapeHTML(child.full_name)}
+            </option>`
+        ).join("");
+    attendanceChildFilter.value =
+        connectedChildren.some(child => child.id === selectedAttendance)
+            ? selectedAttendance
+            : connectedChildren[0].id;
+
+    childSelector.querySelectorAll("[data-child-id]")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                selectedChildId = button.dataset.childId;
+                attendanceChildFilter.value = selectedChildId;
+                renderChildSelector();
+                loadReports();
+                loadAttendance();
+            });
+        });
+
+    const selectedChild =
+        connectedChildren.find(child => child.id === selectedChildId);
+    if (selectedChild) {
+        selectedChildName.textContent = selectedChild.full_name;
+    }
+}
+
+function resetReportFilters() {
+    const selectedYear = parentYearFilter.value;
+    const years = [...new Set(allReports
+        .map(report => report.academic_year)
+        .filter(Boolean))]
+        .sort((a, b) => b.localeCompare(a));
+
+    parentYearFilter.innerHTML =
+        '<option value="">Semua tahun</option>' +
+        years.map(year =>
+            `<option value="${escapeHTML(year)}">${escapeHTML(year)}</option>`
+        ).join("");
+
+    if (years.includes(selectedYear)) {
+        parentYearFilter.value = selectedYear;
+    }
+}
+
+function renderReportContent() {
+    if (!selectedChildId) {
+        reportContent.innerHTML =
+            '<div class="empty-state">Belum ada anak yang terhubung.</div>';
+        return;
+    }
+
+    const year = parentYearFilter.value;
+    const semester = parentSemesterFilter.value;
+
+    const reports = allReports
+        .filter(report =>
+            report.student_id === selectedChildId &&
+            (!year || report.academic_year === year) &&
+            (!semester || String(report.semester) === semester)
+        )
+        .sort((a, b) => {
+            const yearComparison =
+                (b.academic_year || "").localeCompare(a.academic_year || "");
+            if (yearComparison !== 0) return yearComparison;
+            return Number(b.semester) - Number(a.semester);
+        });
+
+    if (reports.length === 0) {
+        reportPeriod.textContent = "";
+        reportContent.innerHTML =
+            '<div class="empty-state">Laporan perkembangan belum tersedia untuk periode ini.</div>';
+        return;
+    }
+
+    reportPeriod.textContent =
+        `${reports[0].academic_year} | Semester ${reports[0].semester}`;
+
+    reportContent.innerHTML = reports.map(report => `
+        <article class="aspect-grid">
+            ${[
+                ["Nilai Agama dan Moral", report.religious_moral],
+                ["Fisik Motorik", report.physical_motor],
+                ["Kognitif", report.cognitive],
+                ["Bahasa", report.language],
+                ["Sosial Emosional", report.social_emotional],
+                ["Seni", report.art]
+            ].map(([title, value]) => `
+                <div class="aspect-card">
+                    <h3>${escapeHTML(title)}</h3>
+                    <p>${escapeHTML(value || "-")}</p>
+                </div>
+            `).join("")}
+        </article>
+        <article class="teacher-notes">
+            <h3>Catatan Guru</h3>
+            <p>${escapeHTML(report.teacher_notes || "-")}</p>
+        </article>
+    `).join(
+        '<hr style="border:0;border-top:1px solid #e8edf4;margin:18px 0">'
+    );
+}
+
+async function loadReports() {
+    if (connectedChildren.length === 0 || !selectedChildId) {
+        allReports = [];
+        renderReportContent();
+        return;
+    }
+
+    parentMessage.textContent = "Memuat laporan...";
+
+    const studentIds = connectedChildren.map(child => child.id);
+
+    const { data, error } = await supabase
+        .from("child_development_reports")
+        .select(`
+            id,
+            student_id,
+            academic_year,
+            semester,
+            religious_moral,
+            physical_motor,
+            cognitive,
+            language,
+            social_emotional,
+            art,
+            teacher_notes,
+            recorded_by,
+            created_at,
+            updated_at
+        `)
+        .in("student_id", studentIds)
+        .order("academic_year", { ascending: false })
+        .order("semester", { ascending: false });
+
+    if (error) {
+        parentMessage.textContent =
+            "Gagal memuat laporan perkembangan: " + error.message;
+        reportContent.innerHTML =
+            '<div class="empty-state">Laporan belum dapat dimuat.</div>';
+        console.error(error);
+        return;
+    }
+
+    allReports = data || [];
+    parentMessage.textContent = "";
+    resetReportFilters();
+    renderReportContent();
+}
+
+async function loadAttendance() {
+    const studentId = attendanceChildFilter.value;
+
+    if (!studentId) {
+        attendanceContent.innerHTML =
+            '<div class="empty-state">Pilih anak untuk melihat riwayat kehadiran.</div>';
+        return;
+    }
+
+    if (
+        !connectedChildren.some(child =>
+            child.id === studentId
+        )
+    ) {
+        attendanceContent.innerHTML =
+            '<div class="empty-state">Anak tidak terhubung dengan akun ini.</div>';
+        return;
+    }
+
+    attendanceContent.innerHTML =
+        '<div class="empty-state">Memuat riwayat kehadiran...</div>';
+
+    const { data, error } = await supabase
+        .from("attendance")
+        .select("attendance_date, status, notes")
+        .eq("student_id", studentId)
+        .order("attendance_date", { ascending: false });
+
+    if (error) {
+        attendanceContent.innerHTML =
+            '<div class="empty-state">Riwayat kehadiran belum dapat dimuat.</div>';
+        parentMessage.textContent =
+            "Riwayat kehadiran belum dapat dibaca: " + error.message;
+        console.error(error);
+        return;
+    }
+
+    parentMessage.textContent = "";
+
+    if (!data || data.length === 0) {
+        attendanceContent.innerHTML =
+            '<div class="empty-state">Belum ada riwayat kehadiran.</div>';
+        return;
+    }
+
+    attendanceContent.innerHTML = `
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Status</th>
+                    <th>Catatan</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data.map(item => `
+                    <tr>
+                        <td>${escapeHTML(item.attendance_date || "-")}</td>
+                        <td>
+                            <span class="attendance-status">
+                                ${escapeHTML(item.status || "-")}
+                            </span>
+                        </td>
+                        <td>${escapeHTML(item.notes || "-")}</td>
+                    </tr>
+                `).join("")}
+            </tbody>
+        </table>
+    `;
+}
+
+function formatReportDate(reportDate) {
+    if (!reportDate) return "-";
+
+    const date = new Date(`${reportDate}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return escapeHTML(reportDate);
+
+    return new Intl.DateTimeFormat("id-ID", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    }).format(date);
+}
+
+async function loadDailyReports() {
+    if (connectedChildren.length === 0) {
+        dailyReportContent.innerHTML = `
+            <h3>Informasi Harian Anak</h3>
+            <div class="empty-state">Belum ada anak yang terhubung dengan akun ini.</div>
+        `;
+        return;
+    }
+
+    dailyReportContent.innerHTML = `
+        <h3>Informasi Harian Anak</h3>
+        <div class="empty-state">Memuat informasi harian...</div>
+    `;
+
+    const studentIds = connectedChildren.map(child => child.id);
+    const { data, error } = await supabase
+        .from("daily_reports")
+        .select(`
+            id,
+            student_id,
+            report_date,
+            meal_info,
+            activity_info,
+            mood_info,
+            other_notes,
+            recorded_by,
+            created_at
+        `)
+        .in("student_id", studentIds)
+        .order("report_date", { ascending: false });
+
+    if (error) {
+        dailyReportContent.innerHTML = `
+            <h3>Informasi Harian Anak</h3>
+            <div class="empty-state">Informasi harian belum dapat dimuat.</div>
+        `;
+        parentMessage.textContent =
+            "Gagal memuat informasi harian: " + error.message;
+        console.error("Gagal memuat daily_reports:", error);
+        return;
+    }
+
+    parentMessage.textContent = "";
+
+    if (!data || data.length === 0) {
+        dailyReportContent.innerHTML = `
+            <h3>Informasi Harian Anak</h3>
+            <div class="empty-state">Belum ada informasi harian.</div>
+        `;
+        return;
+    }
+
+    const reportsByChild = new Map();
+    data.forEach(report => {
+        if (!reportsByChild.has(report.student_id)) {
+            reportsByChild.set(report.student_id, []);
+        }
+        reportsByChild.get(report.student_id).push(report);
+    });
+
+    dailyReportContent.innerHTML = `
+        <h3>Informasi Harian Anak</h3>
+        ${connectedChildren.map(child => {
+            const reports = reportsByChild.get(child.id) || [];
+
+            if (reports.length === 0) {
+                return `
+                    <section class="daily-report-child">
+                        <h4 class="daily-report-child-name">${escapeHTML(child.full_name)}</h4>
+                        <div class="empty-state">Belum ada informasi harian untuk anak ini.</div>
+                    </section>
+                `;
+            }
+
+            return `
+                <section class="daily-report-child">
+                    <h4 class="daily-report-child-name">${escapeHTML(child.full_name)}</h4>
+                    <div class="daily-report-list">
+                        ${reports.map(report => `
+                            <article class="daily-report-card">
+                                <time class="daily-report-date" datetime="${escapeHTML(report.report_date || "")}">
+                                    ${escapeHTML(formatReportDate(report.report_date))}
+                                </time>
+                                <div class="aspect-grid">
+                                    <div class="aspect-card">
+                                        <h3>Informasi Makanan</h3>
+                                        <p>${escapeHTML(report.meal_info || "-")}</p>
+                                    </div>
+                                    <div class="aspect-card">
+                                        <h3>Kegiatan</h3>
+                                        <p>${escapeHTML(report.activity_info || "-")}</p>
+                                    </div>
+                                    <div class="aspect-card">
+                                        <h3>Suasana Hati</h3>
+                                        <p>${escapeHTML(report.mood_info || "-")}</p>
+                                    </div>
+                                    <div class="aspect-card">
+                                        <h3>Catatan Lainnya</h3>
+                                        <p>${escapeHTML(report.other_notes || "-")}</p>
+                                    </div>
+                                </div>
+                            </article>
+                        `).join("")}
+                    </div>
+                </section>
+            `;
+        }).join("")}
+    `;
+}
+
+async function loadAnnouncements() {
+    announcementContent.innerHTML = `
+        <article class="announcement-panel">
+            <h3>Pengumuman</h3>
+            <p>Memuat pengumuman...</p>
+        </article>
+    `;
+
+    const { data, error } = await supabase
+        .from("announcements")
+        .select("title, content")
+        .eq("is_published", true);
+
+    if (error) {
+        if (error.code === "42703") {
+            announcementContent.innerHTML = `
+                <article class="announcement-panel">
+                    <h3>Pengumuman</h3>
+                    <p>Pengumuman belum dapat ditampilkan untuk akun ini.</p>
+                </article>
+            `;
+        } else {
+            announcementContent.innerHTML = `
+                <article class="announcement-panel">
+                    <h3>Pengumuman</h3>
+                    <p>Pengumuman belum dapat dimuat.</p>
+                </article>
+            `;
+        }
+        console.error(error);
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        announcementContent.innerHTML = `
+            <article class="announcement-panel">
+                <h3>Pengumuman</h3>
+                <p>Belum ada pengumuman yang tersedia.</p>
+            </article>
+        `;
+        return;
+    }
+
+    announcementContent.innerHTML = data.map(item => `
+        <article class="announcement-panel">
+            <h3>${escapeHTML(item.title || "Pengumuman")}</h3>
+            <p>${escapeHTML(item.content || "-")}</p>
+        </article>
+    `).join("");
+}
+
+async function loadActivities() {
+    activitiesContent.innerHTML = `
+        <article class="announcement-panel">
+            <h3>Kegiatan Sekolah</h3>
+            <p>Memuat kegiatan...</p>
+        </article>
+    `;
+
+    const { data, error } = await supabase
+        .from("activities")
+        .select("title, activity_date, description")
+        .eq("is_active", true)
+        .order("activity_date", { ascending: false });
+
+    if (error) {
+        activitiesContent.innerHTML = `
+            <article class="announcement-panel">
+                <h3>Kegiatan Sekolah</h3>
+                <p>Kegiatan belum dapat dimuat.</p>
+            </article>
+        `;
+        console.error("Gagal memuat kegiatan sekolah:", error);
+        return;
+    }
+
+    if (!Array.isArray(data)) {
+        activitiesContent.innerHTML = `
+            <article class="announcement-panel">
+                <h3>Kegiatan Sekolah</h3>
+                <p>Kegiatan belum dapat dimuat.</p>
+            </article>
+        `;
+        console.error("Respons daftar kegiatan tidak valid:", data);
+        return;
+    }
+
+    if (data.length === 0) {
+        activitiesContent.innerHTML = `
+            <article class="announcement-panel">
+                <h3>Kegiatan Sekolah</h3>
+                <p>Belum ada kegiatan aktif yang dapat ditampilkan.</p>
+            </article>
+        `;
+        return;
+    }
+
+    activitiesContent.innerHTML = data.map(item => `
+        <article class="announcement-panel">
+            <h3>${escapeHTML(item.title || "Kegiatan")}</h3>
+            <p class="daily-report-date">
+                ${formatReportDate(item.activity_date)}
+            </p>
+            <p>${escapeHTML(item.description || "-")}</p>
+        </article>
+    `).join("");
+}
+
+function tampilParentSection(sectionId) {
+    parentSections.forEach(section =>
+        section.classList.toggle(
+            "active",
+            section.id === `section-${sectionId}`
+        )
+    );
+
+    parentNavButtons.forEach(button =>
+        button.classList.toggle(
+            "active",
+            button.dataset.parentSection === sectionId
+        )
+    );
+
+    if (sectionId === "kehadiran") {
+        loadAttendance();
+    } else if (sectionId === "pengumuman") {
+        loadAnnouncements();
+    } else if (sectionId === "kegiatan") {
+        loadActivities();
+    } else if (sectionId === "perkembangan") {
+        loadReports();
+    } else if (sectionId === "harian") {
+        loadDailyReports();
+    }
+}
+
+parentNavButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        tampilParentSection(button.dataset.parentSection);
+    });
+});
+
+parentLogoutButton.addEventListener("click", logoutParent);
+
+parentYearFilter.addEventListener("change", renderReportContent);
+parentSemesterFilter.addEventListener("change", renderReportContent);
+attendanceChildFilter.addEventListener("change", () => {
+    selectedChildId = attendanceChildFilter.value;
+    renderChildSelector();
+    loadAttendance();
+});
+
+(async () => {
+    if (!(await checkParent())) return;
+
+    document.body.style.display = "block";
+    if (!(await loadConnectedChildren())) return;
+    await Promise.all([
+        loadReports(),
+        loadDailyReports()
+    ]);
+})();
+</script>
+
+</body>
+</html>

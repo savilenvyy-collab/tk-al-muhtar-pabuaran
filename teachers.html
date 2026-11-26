@@ -1,0 +1,642 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Guru - TK AL-Muhtar Pabuaran</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="admin.css">
+
+  <style>
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 19px;
+      padding: 25px;
+      box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+    }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 11px 16px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .add { background: var(--blue); color: var(--white); }
+    .muted { color: var(--muted); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 550px; }
+    th, td {
+      padding: 14px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--navy); background: #f8fafc; }
+    #message { margin-top: 15px; }
+    @media (max-width: 600px) {
+      .panel { padding: 20px; }
+    }
+
+    /* Form Data Guru */
+    #teacherModal {
+      margin-top: 24px;
+    }
+
+    #teacherModal .panel {
+      max-width: 750px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    #teacherModal h3 {
+      margin: 0 0 22px;
+      color: var(--navy);
+      font-size: 21px;
+    }
+
+    #teacherForm {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    #teacherForm label {
+      display: block;
+      margin-bottom: -10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #52657c;
+    }
+
+    #teacherForm input,
+    #teacherForm select,
+    #teacherForm textarea {
+      width: 100%;
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      font: inherit;
+      outline: none;
+    }
+
+    #teacherForm input:focus,
+    #teacherForm select:focus,
+    #teacherForm textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(71, 123, 181, .12);
+    }
+
+    #teacherForm textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    #teacherForm button {
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      #teacherModal .panel {
+        padding: 18px;
+      }
+
+      #teacherForm {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .action-btn {
+      background: var(--blue);
+      color: var(--white);
+      margin: 3px;
+    }
+
+    .account-modal {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .account-modal .panel {
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .account-modal input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 14px;
+      border: 1px solid #d7e0eb;
+      border-radius: 8px;
+      font: inherit;
+    }
+
+    .account-modal label {
+      font-weight: 600;
+    }
+
+    .account-modal button {
+      margin-top: 8px;
+    }
+  </style>
+</head>
+
+<body style="display:none">
+
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <h2>TK AL-Muhtar</h2>
+      <p>Sistem Administrasi Sekolah</p>
+
+      <a href="admin.html">📊 Dashboard</a>
+      <a href="students.html">👧 Data Siswa</a>
+      <a href="teachers.html" class="active" aria-current="page">👩‍🏫 Data Guru</a>
+      <a href="attendance.html">📋 Absensi</a>
+      <a href="development.html">🌱 Perkembangan Anak</a>
+      <a href="announcements.html">📢 Pengumuman</a>
+      <a href="kegiatan.html">🎨 Kegiatan</a>
+      <a href="#">💰 Keuangan</a>
+      <a href="accounts.html">👤 Manajemen Akun</a>
+      <a href="settings.html">⚙️ Pengaturan</a>
+      <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+  <main class="main-content">
+    <div class="top topbar">
+      <div>
+        <h1>Manajemen Data Guru</h1>
+        <div class="muted">Kelola informasi tenaga pendidik</div>
+      </div>
+      <div>
+        <button class="add" onclick="openTeacherForm()">
+          + Tambah Guru
+        </button>
+      </div>
+    </div>
+
+    <section class="panel">
+      <h3>Daftar Guru</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Nama Guru</th>
+              <th>Username</th>
+              <th>Status Akun</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="teacherList">
+            <tr>
+              <td colspan="5" class="muted">Memuat data guru...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="message" class="muted"></div>
+      <div id="teacherModal" style="display:none; margin-top:20px;">
+        <div class="panel">
+          <h3>Tambah Data Guru</h3>
+
+          <form id="teacherForm">
+            <label>Nama Lengkap</label>
+            <input id="full_name" type="text" required>
+
+            <label>Jenis Kelamin</label>
+            <select id="gender">
+              <option value="">Pilih</option>
+              <option value="Laki-laki">Laki-laki</option>
+              <option value="Perempuan">Perempuan</option>
+            </select>
+
+            <label>Tempat Lahir</label>
+            <input id="birth_place" type="text">
+
+            <label>Tanggal Lahir</label>
+            <input id="birth_date" type="date">
+
+            <label>Alamat</label>
+            <textarea id="address"></textarea>
+
+            <label>Nomor HP</label>
+            <input id="phone" type="tel">
+
+            <label>Jabatan</label>
+            <input id="position" type="text">
+
+            <label>Status Kepegawaian</label>
+            <select id="employment_status">
+              <option value="">Pilih</option>
+              <option value="Tetap">Tetap</option>
+              <option value="Honorer">Honorer</option>
+              <option value="Kontrak">Kontrak</option>
+            </select>
+
+            <label>Tanggal Mulai Mengajar</label>
+            <input id="start_date" type="date">
+
+            <br><br>
+            <button class="add" type="submit">Simpan Guru</button>
+            <button type="button" onclick="closeTeacherForm()">Batal</button>
+          </form>
+        </div>
+      </div>
+      <div id="accountModal" class="account-modal">
+        <div class="panel">
+          <h3>Buat Akun Guru</h3>
+
+          <p>Nama Guru: <strong id="selectedTeacherName"></strong></p>
+
+          <form id="accountForm">
+            <label>Username</label>
+            <input id="accountUsername" type="text"
+              required maxlength="50"
+              pattern="[a-z0-9_.-]+"
+              placeholder="Contoh: siti_aminah">
+
+            <label>Email</label>
+            <input id="accountEmail" type="email"
+              required placeholder="guru@example.com">
+
+            <label>Password Awal</label>
+            <input id="accountPassword" type="password"
+              required minlength="8"
+              placeholder="Minimal 8 karakter">
+
+            <button id="createAccountButton"
+              class="add" type="submit">
+              Buat Akun
+            </button>
+
+            <button type="button"
+              onclick="closeAccountForm()">
+              Batal
+            </button>
+          </form>
+
+          <div id="accountMessage" class="muted"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  </div>
+
+  <script>
+    // Konfigurasi menggunakan URL dan publishable key
+    // yang sama dengan proyek utama.
+    const SUPABASE_URL = "https://ianbedmbrrmqhbpbbvnr.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    let teacherCache = [];
+    let selectedTeacherId = null;
+    let adminVerified = false;
+
+    async function redirectToLogin(signOut) {
+      if (signOut) {
+        const { error } = await db.auth.signOut();
+        if (error) {
+          console.error("Gagal mengakhiri sesi non-Admin:", error);
+        }
+      }
+
+      window.location.replace("login.html");
+    }
+
+    async function verifyAdmin() {
+      try {
+        const { data: sessionData, error: sessionError } =
+          await db.auth.getSession();
+
+        if (sessionError) throw sessionError;
+
+        const session = sessionData.session;
+        if (!session) {
+          await redirectToLogin(false);
+          return false;
+        }
+
+        const { data: isAdmin, error: adminError } =
+          await db.rpc("is_admin");
+
+        if (adminError) throw adminError;
+        if (isAdmin !== true) {
+          await redirectToLogin(true);
+          return false;
+        }
+
+        const { data: profile, error: profileError } = await db
+          .from("profiles")
+          .select("role, is_active")
+          .eq("id", session.user.id)
+          .maybeSingle();
+
+        if (profileError) throw profileError;
+        if (
+          !profile ||
+          profile.role !== "admin" ||
+          profile.is_active !== true
+        ) {
+          await redirectToLogin(true);
+          return false;
+        }
+
+        adminVerified = true;
+        return true;
+      } catch (error) {
+        console.error("Pemeriksaan akses Data Guru gagal:", error);
+        alert("Akses Admin tidak dapat diverifikasi. Silakan coba kembali.");
+        await redirectToLogin(false);
+        return false;
+      }
+    }
+
+    async function loadTeachers() {
+      if (!adminVerified) return;
+
+      const list = document.getElementById("teacherList");
+      const message = document.getElementById("message");
+
+      list.innerHTML = `
+        <tr><td colspan="5">Memuat data guru...</td></tr>
+      `;
+      message.textContent = "";
+
+      try {
+        const { data, error } = await db
+          .from("teachers")
+          .select("id, profile_id, full_name, is_active, created_at")
+          .order("created_at", { ascending: true });
+
+        if (error) throw error;
+
+        teacherCache = data || [];
+
+        if (teacherCache.length === 0) {
+          list.innerHTML = `
+            <tr><td colspan="5">Belum ada data guru.</td></tr>
+          `;
+          return;
+        }
+
+        const profileIds = teacherCache
+          .map(guru => guru.profile_id)
+          .filter(Boolean);
+        let profiles = [];
+
+        if (profileIds.length > 0) {
+          const { data: profileData, error: profileError } = await db
+            .from("profiles")
+            .select("id, username")
+            .in("id", profileIds);
+
+          if (profileError) throw profileError;
+          profiles = profileData || [];
+        }
+
+        const profileMap = new Map(
+          profiles.map(profile => [profile.id, profile.username])
+        );
+
+        list.innerHTML = teacherCache.map((guru, index) => {
+          const username = guru.profile_id
+            ? profileMap.get(guru.profile_id) || "Terhubung"
+            : "Belum terhubung";
+
+          let action = "-";
+
+          if (guru.profile_id) {
+            action = "Sudah memiliki akun";
+          } else if (guru.is_active) {
+            action = `
+              <button class="action-btn" type="button"
+                data-teacher-id="${escapeHTML(guru.id)}">
+                Buat Akun
+              </button>
+            `;
+          } else {
+            action = "Guru Nonaktif";
+          }
+
+          return `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${escapeHTML(guru.full_name || "-")}</td>
+              <td>${escapeHTML(username)}</td>
+              <td>${guru.is_active ? "Aktif" : "Nonaktif"}</td>
+              <td>${action}</td>
+            </tr>
+          `;
+        }).join("");
+      } catch (error) {
+        console.error("Gagal memuat data guru:", error);
+        list.innerHTML = `
+          <tr><td colspan="5">Gagal memuat data guru.</td></tr>
+        `;
+        message.textContent = error.message || "Terjadi kesalahan.";
+      }
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[char]);
+    }
+
+    function openTeacherForm() {
+      if (!adminVerified) return;
+      document.getElementById("teacherModal").style.display = "block";
+    }
+
+    function closeTeacherForm() {
+      document.getElementById("teacherModal").style.display = "none";
+    }
+
+    function openAccountForm(teacherId) {
+      if (!adminVerified) return;
+
+      const guru = teacherCache.find(
+        item => item.id === teacherId
+      );
+
+      if (!guru || guru.profile_id || !guru.is_active) {
+        alert("Data guru tidak tersedia atau sudah memiliki akun.");
+        return;
+      }
+
+      selectedTeacherId = guru.id;
+
+      document.getElementById("selectedTeacherName").textContent =
+        guru.full_name || "-";
+
+      document.getElementById("accountMessage").textContent = "";
+      document.getElementById("accountForm").reset();
+      document.getElementById("accountModal").style.display = "block";
+    }
+
+    function closeAccountForm() {
+      document.getElementById("accountModal").style.display = "none";
+      selectedTeacherId = null;
+    }
+
+    document.getElementById("teacherList").addEventListener(
+      "click",
+      function(event) {
+        const button = event.target.closest("[data-teacher-id]");
+        if (button) openAccountForm(button.dataset.teacherId);
+      }
+    );
+
+    document.getElementById("teacherForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      if (!adminVerified) return;
+
+      const payload = {
+        full_name: document.getElementById("full_name").value.trim(),
+        gender: document.getElementById("gender").value || null,
+        birth_place: document.getElementById("birth_place").value.trim() || null,
+        birth_date: document.getElementById("birth_date").value || null,
+        address: document.getElementById("address").value.trim() || null,
+        phone: document.getElementById("phone").value.trim() || null,
+        position: document.getElementById("position").value.trim() || null,
+        employment_status: document.getElementById("employment_status").value || null,
+        start_date: document.getElementById("start_date").value || null
+      };
+
+      const { error } = await db.from("teachers").insert(payload);
+
+      if (error) {
+        alert("Gagal menyimpan: " + error.message);
+        return;
+      }
+
+      alert("Data guru berhasil disimpan!");
+      this.reset();
+      closeTeacherForm();
+      loadTeachers();
+    });
+
+    document.getElementById("accountForm").addEventListener(
+      "submit",
+      async function(event) {
+        event.preventDefault();
+        if (!adminVerified) return;
+
+        const button = document.getElementById("createAccountButton");
+        const message = document.getElementById("accountMessage");
+
+        if (!selectedTeacherId) {
+          message.textContent = "Data guru belum dipilih.";
+          return;
+        }
+
+        const guru = teacherCache.find(
+          item => item.id === selectedTeacherId
+        );
+
+        if (!guru || guru.profile_id || !guru.is_active) {
+          message.textContent =
+            "Data guru tidak valid atau sudah memiliki akun.";
+          return;
+        }
+
+        const payload = {
+          full_name: guru.full_name,
+          username: document.getElementById("accountUsername").value.trim(),
+          email: document.getElementById("accountEmail").value.trim(),
+          password: document.getElementById("accountPassword").value,
+          role: "guru",
+          teacher_id: selectedTeacherId
+        };
+
+        button.disabled = true;
+        button.textContent = "Memproses...";
+        message.textContent = "";
+
+        try {
+          const { data, error } = await db.functions.invoke(
+            "admin-create-user",
+            { body: payload }
+          );
+
+          if (error) {
+            throw new Error(
+              data?.error || error.message ||
+              "Gagal menghubungi server."
+            );
+          }
+
+          if (data?.error) {
+            throw new Error(data.error);
+          }
+
+          message.textContent =
+            "Akun berhasil dibuat. Username: " + data.username;
+          message.style.color = "green";
+
+          this.reset();
+          await loadTeachers();
+
+          setTimeout(() => {
+            closeAccountForm();
+          }, 1500);
+
+        } catch (error) {
+          console.error("Gagal membuat akun Guru:", error);
+          message.textContent =
+            error.message || "Gagal membuat akun.";
+          message.style.color = "red";
+
+        } finally {
+          button.disabled = false;
+          button.textContent = "Buat Akun";
+        }
+      }
+    );
+
+    document.getElementById("adminLogout").addEventListener(
+      "click",
+      async event => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+          const { error } = await db.auth.signOut();
+          if (error) throw error;
+          window.location.replace("login.html");
+        } catch (error) {
+          console.error("Gagal logout Admin:", error);
+          alert("Gagal logout: " + error.message);
+          button.disabled = false;
+        }
+      }
+    );
+
+    (async () => {
+      if (!(await verifyAdmin())) return;
+      document.body.style.display = "block";
+      await loadTeachers();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Guru - TK AL-Muhtar</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .guru-profile { text-align: right; }
+        .guru-profile small { display: block; color: #8290a3; }
+        .section-panel {
+            display: none;
+            background: #fff;
+            border: 1px solid #e8edf4;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+        .section-panel.active { display: block; }
+        .panel-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .panel-toolbar h2 { margin: 0; }
+        .panel-toolbar input {
+            min-width: 220px;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+        }
+        .table-wrap { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e8edf4;
+            text-align: left;
+            vertical-align: top;
+        }
+        th { background: #f4f7fb; color: #243e63; }
+        td select, td textarea {
+            width: 100%;
+            min-width: 130px;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+        }
+        td textarea { min-width: 180px; }
+        .action-button {
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 16px;
+            background: #477bb5;
+            color: #fff;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .action-button:disabled { opacity: .6; cursor: not-allowed; }
+        .logout-button {
+            width: 100%;
+            margin-top: 25px;
+            border: 1px solid #64748b;
+            background: transparent;
+            color: #d4dfed;
+        }
+        .menu-button {
+            width: 100%;
+            border: 0;
+            text-align: left;
+        }
+        .menu-button.sidebar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            margin-bottom: 7px;
+            background: transparent;
+            color: #d4dfed;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color .25s, color .25s;
+        }
+        .menu-button.sidebar:hover,
+        .menu-button.sidebar.active {
+            background: #36577f;
+            color: #fff;
+        }
+        .menu-button.sidebar.active {
+            border-left: 4px solid #f2c96d;
+        }
+        .menu-button.sidebar.logout-button {
+            border: 1px solid #64748b;
+        }
+        .message {
+            min-height: 22px;
+            margin: 12px 0;
+            color: #991b1b;
+            font-weight: 700;
+        }
+        .message.success { color: #166534; }
+        .message.info {
+            padding: 10px 12px;
+            color: #1e40af;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+        }
+        .message.info::before {
+            content: "i";
+            display: inline-flex;
+            width: 16px;
+            height: 16px;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            border: 1px solid currentColor;
+            border-radius: 50%;
+            font-size: 12px;
+        }
+        .announcement-list {
+            display: grid;
+            gap: 14px;
+        }
+        .announcement-card {
+            border: 1px solid #e8edf4;
+            border-left: 4px solid #477bb5;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .announcement-card h3 { margin-bottom: 7px; }
+        .announcement-card p { line-height: 1.6; white-space: pre-wrap; }
+        .daily-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .daily-card {
+            border: 1px solid #e8edf4;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .report-toolbar {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .report-toolbar label,
+        .report-form label {
+            display: block;
+            margin-bottom: 7px;
+            color: #243e63;
+            font-weight: 800;
+        }
+        .report-toolbar select,
+        .report-toolbar input,
+        .report-form textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+            box-sizing: border-box;
+        }
+        .report-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .report-form textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+        .report-notes,
+        .report-actions {
+            grid-column: 1 / -1;
+        }
+        .report-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .report-readonly-summary {
+            margin-top: 18px;
+            border-top: 1px solid #e8edf4;
+            padding-top: 18px;
+        }
+        .daily-report-toolbar {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .daily-report-toolbar label,
+        .daily-report-form label {
+            display: block;
+            margin-bottom: 7px;
+            color: #243e63;
+            font-weight: 800;
+        }
+        .daily-report-toolbar select,
+        .daily-report-toolbar input,
+        .daily-report-form textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+            box-sizing: border-box;
+        }
+        .daily-report-form {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+        .daily-report-form textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+        .daily-report-actions,
+        .daily-report-notes {
+            grid-column: 1 / -1;
+        }
+        .daily-report-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        @media (max-width: 700px) {
+            .guru-profile { text-align: left; }
+            .panel-toolbar { align-items: stretch; flex-direction: column; }
+            .panel-toolbar input { min-width: 0; width: 100%; }
+            .daily-grid { grid-template-columns: 1fr; }
+            .report-toolbar,
+            .report-form,
+            .daily-report-toolbar,
+            .daily-report-form {
+                grid-template-columns: 1fr;
+            }
+            .report-notes,
+            .report-actions,
+            .daily-report-actions,
+            .daily-report-notes {
+                grid-column: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Dashboard Guru</p>
+
+        <button class="menu-button sidebar active" data-section="dashboard">📊 Dashboard</button>
+        <button class="menu-button sidebar" data-section="siswa">👧 Data Anak</button>
+        <button class="menu-button sidebar" data-section="absensi">📋 Absensi</button>
+        <button class="menu-button sidebar" data-section="libur">📅 Hari Libur</button>
+        <button class="menu-button sidebar" data-section="perkembangan">🌱 Perkembangan Anak</button>
+        <button class="menu-button sidebar" data-section="pengumuman">📢 Pengumuman</button>
+        <button class="menu-button sidebar" data-section="kegiatan">🎨 Kegiatan</button>
+        <button class="menu-button sidebar" data-section="harian">📝 Informasi Anak Harian</button>
+        <button id="logoutBtn" class="menu-button sidebar logout-button">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="topbar">
+            <h1 id="judulHalaman">Dashboard Guru</h1>
+            <div class="admin-profile guru-profile">
+                <strong id="namaGuru">Memuat...</strong>
+                <small>Guru</small>
+            </div>
+        </div>
+
+        <section id="dashboard" class="section-panel active">
+            <div class="admin-welcome">
+                <h2 id="sapaanGuru">Selamat Datang!</h2>
+                <p>Selamat bertugas. Silakan gunakan sistem ini untuk mengelola data peserta didik, mencatat kehadiran, memantau perkembangan anak, serta menyampaikan informasi kegiatan dan aktivitas harian sekolah.</p>
+            </div>
+
+            <section class="dashboard-cards">
+                <div class="dashboard-card">
+                    <div class="icon">👧</div>
+                    <h3>Total Anak Aktif</h3>
+                    <p id="totalSiswa">Memuat...</p>
+                </div>
+                <div class="dashboard-card">
+                    <div class="icon">📋</div>
+                    <h3>Absensi Hari Ini</h3>
+                    <p id="totalAbsensi">Memuat...</p>
+                </div>
+                <div class="dashboard-card">
+                    <div class="icon">📢</div>
+                    <h3>Pengumuman Aktif</h3>
+                    <p id="totalPengumuman">Memuat...</p>
+                </div>
+            </section>
+        </section>
+
+        <section id="siswa" class="section-panel">
+            <div class="panel-toolbar">
+                <h2>Data Anak</h2>
+                <input id="cariSiswa" type="search"
+                    placeholder="Cari nama atau nomor induk">
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Nomor Induk</th>
+                            <th>Nama Anak</th>
+                            <th>Tanggal Lahir</th>
+                            <th>Jenis Kelamin</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daftarSiswa">
+                        <tr><td colspan="6">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="absensi" class="section-panel">
+            <div class="panel-toolbar">
+                <h2>Absensi Anak</h2>
+                <input id="tanggalAbsensi" type="date">
+            </div>
+            <p id="pesanAbsensi" class="message"></p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Nama Anak</th>
+                            <th>Status</th>
+                            <th>Catatan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daftarAbsensi">
+                        <tr><td colspan="4">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <button id="simpanAbsensi" class="action-button" type="button">
+                Simpan Absensi
+            </button>
+        </section>
+
+        <section id="libur" class="section-panel">
+            <h2>Informasi Hari Libur</h2>
+            <p>Daftar hari libur yang ditetapkan sekolah. Data ini hanya dapat dikelola oleh Admin.</p>
+            <p id="pesanHariLibur" class="message"></p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Tanggal</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daftarHariLiburGuru">
+                        <tr><td colspan="3">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="perkembangan" class="section-panel">
+            <h2>Perkembangan Anak</h2>
+            <p id="pesanPerkembangan" class="message"></p>
+
+            <div class="report-toolbar">
+                <div>
+                    <label for="laporanSiswa">Nama Anak</label>
+                    <select id="laporanSiswa">
+                        <option value="">Memuat siswa...</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="laporanTahun">Tahun Ajaran</label>
+                    <input id="laporanTahun" type="text"
+                        maxlength="9" pattern="[0-9]{4}/[0-9]{4}"
+                        placeholder="2026/2027">
+                </div>
+                <div>
+                    <label for="laporanSemester">Semester</label>
+                    <select id="laporanSemester">
+                        <option value="1">Semester 1</option>
+                        <option value="2">Semester 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <form id="formPerkembangan" class="report-form">
+                <div>
+                    <label for="religiousMoral">Nilai Agama dan Moral</label>
+                    <textarea id="religiousMoral" required></textarea>
+                </div>
+                <div>
+                    <label for="physicalMotor">Fisik Motorik</label>
+                    <textarea id="physicalMotor" required></textarea>
+                </div>
+                <div>
+                    <label for="cognitive">Kognitif</label>
+                    <textarea id="cognitive" required></textarea>
+                </div>
+                <div>
+                    <label for="language">Bahasa</label>
+                    <textarea id="language" required></textarea>
+                </div>
+                <div>
+                    <label for="socialEmotional">Sosial Emosional</label>
+                    <textarea id="socialEmotional" required></textarea>
+                </div>
+                <div>
+                    <label for="art">Seni</label>
+                    <textarea id="art" required></textarea>
+                </div>
+                <div class="report-notes">
+                    <label for="teacherNotes">Catatan Guru</label>
+                    <textarea id="teacherNotes"></textarea>
+                </div>
+                <div class="report-actions">
+                    <button id="simpanPerkembangan" class="action-button"
+                        type="submit">Simpan Laporan</button>
+                </div>
+            </form>
+
+            <div id="ringkasanPerkembangan"
+                class="report-readonly-summary"></div>
+        </section>
+
+        <section id="pengumuman" class="section-panel">
+            <h2>Pengumuman</h2>
+            <p id="pesanPengumuman" class="message"></p>
+            <div id="daftarPengumuman" class="announcement-list">
+                Memuat pengumuman...
+            </div>
+        </section>
+
+        <section id="kegiatan" class="section-panel">
+            <h2>Kegiatan Sekolah</h2>
+            <p id="pesanKegiatanSekolah" class="message"></p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nama Kegiatan</th>
+                            <th>Tanggal</th>
+                            <th>Deskripsi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daftarKegiatanSekolah">
+                        <tr><td colspan="3">Memuat kegiatan...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="harian" class="section-panel">
+            <div class="panel-toolbar">
+                <h2>Informasi Anak Harian</h2>
+            </div>
+            <p id="pesanHarian" class="message"></p>
+            <div class="daily-report-toolbar">
+                <div>
+                    <label for="laporanHarianSiswa">Nama Anak</label>
+                    <select id="laporanHarianSiswa">
+                        <option value="">Memuat anak...</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="tanggalHarian">Tanggal Laporan</label>
+                    <input id="tanggalHarian" type="date">
+                </div>
+            </div>
+            <form id="formInformasiHarian" class="daily-report-form">
+                <div>
+                    <label for="mealInfo">Informasi Makan/Minum</label>
+                    <textarea id="mealInfo"></textarea>
+                </div>
+                <div>
+                    <label for="activityInfo">Aktivitas Anak</label>
+                    <textarea id="activityInfo"></textarea>
+                </div>
+                <div>
+                    <label for="moodInfo">Suasana Hati Anak</label>
+                    <textarea id="moodInfo"></textarea>
+                </div>
+                <div class="daily-report-notes">
+                    <label for="otherNotes">Catatan Lainnya</label>
+                    <textarea id="otherNotes"></textarea>
+                </div>
+                <div class="daily-report-actions">
+                    <button id="simpanInformasiHarian"
+                        class="action-button" type="submit">
+                        Simpan Informasi Harian
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { HOLIDAYS_2026 } from "./calendar-2026.js";
+
+const SUPABASE_URL = "https://ianbedmbrrmqhbpbbvnr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const menuButtons = [...document.querySelectorAll(".menu-button[data-section]")];
+const sectionPanels = [...document.querySelectorAll(".section-panel")];
+const tanggalAbsensi = document.getElementById("tanggalAbsensi");
+const tanggalHarian = document.getElementById("tanggalHarian");
+const laporanHarianSiswa =
+    document.getElementById("laporanHarianSiswa");
+const formInformasiHarian =
+    document.getElementById("formInformasiHarian");
+const pesanHarian =
+    document.getElementById("pesanHarian");
+const simpanInformasiHarian =
+    document.getElementById("simpanInformasiHarian");
+const laporanSiswa = document.getElementById("laporanSiswa");
+const laporanTahun = document.getElementById("laporanTahun");
+const laporanSemester = document.getElementById("laporanSemester");
+const formPerkembangan = document.getElementById("formPerkembangan");
+const pesanPerkembangan = document.getElementById("pesanPerkembangan");
+const ringkasanPerkembangan =
+    document.getElementById("ringkasanPerkembangan");
+const simpanPerkembangan =
+    document.getElementById("simpanPerkembangan");
+let sessionAktif = null;
+let semuaSiswa = [];
+let daftarHariLiburGuru = [];
+
+function tanggalHariIni() {
+    const sekarang = new Date();
+    const lokal = new Date(
+        sekarang.getTime() - sekarang.getTimezoneOffset() * 60000
+    );
+    return lokal.toISOString().slice(0, 10);
+}
+
+function periksaHariLiburGuru(tanggal) {
+    const hari = new Date(tanggal + "T00:00:00").getDay();
+
+    if (hari === 0 || hari === 6) {
+        return "Libur akhir pekan";
+    }
+
+    const liburDinamis = daftarHariLiburGuru.find(item =>
+        tanggal >= item.start_date && tanggal <= item.end_date
+    );
+    if (liburDinamis) {
+        return liburDinamis.description ||
+            liburDinamis.name;
+    }
+
+    return HOLIDAYS_2026[tanggal] || null;
+}
+
+function escapeHTML(teks) {
+    return String(teks ?? "").replace(/[&<>"']/g, karakter => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[karakter]);
+}
+
+function tampilSection(id) {
+    sectionPanels.forEach(panel =>
+        panel.classList.toggle("active", panel.id === id)
+    );
+    menuButtons.forEach(button =>
+        button.classList.toggle("active", button.dataset.section === id)
+    );
+
+    const judul = {
+        dashboard: "Dashboard Guru",
+        siswa: "Data Anak",
+        absensi: "Absensi",
+        libur: "Hari Libur",
+        perkembangan: "Perkembangan Anak",
+        pengumuman: "Pengumuman",
+        kegiatan: "Kegiatan Sekolah",
+        harian: "Informasi Anak Harian"
+    };
+    document.getElementById("judulHalaman").textContent = judul[id] || "Dashboard Guru";
+}
+
+menuButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        tampilSection(button.dataset.section);
+    });
+});
+
+async function kembaliKeLogin() {
+    await supabase.auth.signOut();
+    window.location.replace("login.html");
+}
+
+async function periksaGuru() {
+    const { data: { session }, error: sessionError } =
+        await supabase.auth.getSession();
+
+    if (sessionError || !session) {
+        window.location.replace("login.html");
+        return false;
+    }
+
+    sessionAktif = session;
+
+    const { data: profil, error: profileError } = await supabase
+        .from("profiles")
+        .select("full_name, username, role, is_active")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+    if (
+        profileError ||
+        !profil ||
+        profil.role !== "guru" ||
+        profil.is_active !== true
+    ) {
+        await kembaliKeLogin();
+        return false;
+    }
+
+    const nama = profil.full_name || profil.username || "Guru";
+    document.getElementById("namaGuru").textContent = nama;
+
+    const { data: biodataGuru, error: teacherError } = await supabase
+        .from("teachers")
+        .select("full_name, gender")
+        .eq("profile_id", session.user.id)
+        .maybeSingle();
+
+    if (teacherError) {
+        console.error("Gagal memuat biodata guru:", teacherError);
+    }
+
+    const namaGuru = profil.full_name ||
+        biodataGuru?.full_name ||
+        profil.username ||
+        "Guru";
+    const jenisKelamin = typeof biodataGuru?.gender === "string"
+        ? biodataGuru.gender.trim().toLowerCase()
+        : "";
+    const sapaan = jenisKelamin === "perempuan"
+        ? "Ibu " + namaGuru
+        : jenisKelamin === "laki-laki"
+            ? "Bapak " + namaGuru
+            : namaGuru;
+
+    document.getElementById("sapaanGuru").textContent =
+        "Selamat Datang, " + sapaan + "!";
+    return true;
+}
+
+async function muatHariLiburGuru() {
+    const daftar =
+        document.getElementById("daftarHariLiburGuru");
+    const pesan =
+        document.getElementById("pesanHariLibur");
+
+    const { data, error } = await supabase
+        .from("school_holidays")
+        .select("id, name, start_date, end_date, description")
+        .order("start_date", { ascending: true });
+
+    if (error) {
+        daftarHariLiburGuru = [];
+        daftar.innerHTML =
+            '<tr><td colspan="3">Gagal memuat hari libur.</td></tr>';
+        pesan.textContent =
+            "Hari libur dari Supabase belum dapat dimuat.";
+        console.error(error);
+        return;
+    }
+
+    daftarHariLiburGuru = data || [];
+    pesan.textContent = "";
+
+    if (daftarHariLiburGuru.length === 0) {
+        daftar.innerHTML =
+            '<tr><td colspan="3">Belum ada hari libur tambahan.</td></tr>';
+        return;
+    }
+
+    daftar.innerHTML = daftarHariLiburGuru.map(item => {
+        const tanggal =
+            item.start_date === item.end_date
+                ? item.start_date
+                : `${item.start_date} s/d ${item.end_date}`;
+
+        return `
+            <tr>
+                <td><strong>${escapeHTML(item.name)}</strong></td>
+                <td>${escapeHTML(tanggal)}</td>
+                <td>${escapeHTML(item.description || "-")}</td>
+            </tr>
+        `;
+    }).join("");
+}
+
+async function muatRingkasan() {
+    const hariIni = tanggalHariIni();
+
+    const [siswa, absensi, pengumuman] = await Promise.all([
+        supabase.from("students")
+            .select("*", { count: "exact", head: true })
+            .eq("is_active", true),
+        supabase.from("attendance")
+            .select("*", { count: "exact", head: true })
+            .eq("attendance_date", hariIni),
+        supabase.from("announcements")
+            .select("*", { count: "exact", head: true })
+            .eq("is_published", true)
+    ]);
+
+    document.getElementById("totalSiswa").textContent =
+        siswa.error ? "Gagal memuat" : String(siswa.count ?? 0);
+    document.getElementById("totalAbsensi").textContent =
+        absensi.error ? "Gagal memuat" : String(absensi.count ?? 0);
+    document.getElementById("totalPengumuman").textContent =
+        pengumuman.error ? "Gagal memuat" : String(pengumuman.count ?? 0);
+}
+
+async function muatSiswa() {
+    const daftar = document.getElementById("daftarSiswa");
+    daftar.innerHTML = '<tr><td colspan="6">Memuat data...</td></tr>';
+
+    const { data, error } = await supabase
+        .from("students")
+        .select("id, student_number, full_name, birth_date, gender, is_active")
+        .order("full_name");
+
+    if (error) {
+        daftar.innerHTML =
+            '<tr><td colspan="6">Gagal memuat data anak.</td></tr>';
+        console.error(error);
+        return;
+    }
+
+    semuaSiswa = data || [];
+    tampilkanSiswa(semuaSiswa);
+}
+
+function tampilkanSiswa(data) {
+    const daftar = document.getElementById("daftarSiswa");
+
+    if (data.length === 0) {
+        daftar.innerHTML =
+            '<tr><td colspan="6">Belum ada data anak.</td></tr>';
+        return;
+    }
+
+    daftar.innerHTML = data.map((siswa, index) => `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHTML(siswa.student_number || "-")}</td>
+            <td><strong>${escapeHTML(siswa.full_name)}</strong></td>
+            <td>${escapeHTML(siswa.birth_date || "-")}</td>
+            <td>${escapeHTML(siswa.gender || "-")}</td>
+            <td>${siswa.is_active ? "Aktif" : "Nonaktif"}</td>
+        </tr>
+    `).join("");
+}
+
+document.getElementById("cariSiswa").addEventListener("input", (event) => {
+    const kata = event.target.value.toLowerCase().trim();
+    tampilkanSiswa(semuaSiswa.filter(siswa =>
+        (siswa.full_name || "").toLowerCase().includes(kata) ||
+        (siswa.student_number || "").toLowerCase().includes(kata)
+    ));
+});
+
+async function muatAbsensi() {
+    const daftar = document.getElementById("daftarAbsensi");
+    const pesan = document.getElementById("pesanAbsensi");
+    const tanggal = tanggalAbsensi.value;
+    const simpanButton =
+        document.getElementById("simpanAbsensi");
+    pesan.textContent = "";
+    daftar.innerHTML =
+        '<tr><td colspan="4">Memuat data...</td></tr>';
+
+    const alasanLibur = periksaHariLiburGuru(tanggal);
+    if (alasanLibur) {
+        daftar.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center;padding:30px">
+                    <h2>📅 HARI LIBUR</h2>
+                    <p>${escapeHTML(alasanLibur)}</p>
+                    <p>Tidak ada kegiatan absensi hari ini.</p>
+                </td>
+            </tr>
+        `;
+        simpanButton.disabled = true;
+        pesan.textContent =
+            "Absensi tidak tersedia pada hari libur.";
+        return;
+    }
+
+    simpanButton.disabled = false;
+
+    const { data: siswa, error: siswaError } = await supabase
+        .from("students")
+        .select("id, student_number, full_name")
+        .eq("is_active", true)
+        .order("full_name");
+
+    if (siswaError) {
+        daftar.innerHTML =
+            '<tr><td colspan="4">Gagal memuat data anak.</td></tr>';
+        pesan.textContent = siswaError.message;
+        return;
+    }
+
+    const { data: absensi, error: absensiError } = await supabase
+        .from("attendance")
+        .select("student_id, status, notes")
+        .eq("attendance_date", tanggal);
+
+    if (absensiError) {
+        daftar.innerHTML =
+            '<tr><td colspan="4">Gagal memuat absensi.</td></tr>';
+        pesan.textContent = absensiError.message;
+        return;
+    }
+
+    const dataAbsensi = new Map(
+        (absensi || []).map(item => [item.student_id, item])
+    );
+
+    if (!siswa || siswa.length === 0) {
+        daftar.innerHTML =
+            '<tr><td colspan="4">Belum ada anak aktif.</td></tr>';
+        return;
+    }
+
+    daftar.innerHTML = siswa.map((anak, index) => {
+        const catatan = dataAbsensi.get(anak.id);
+        const status = catatan?.status || "Hadir";
+        return `
+            <tr data-id="${escapeHTML(anak.id)}">
+                <td>${index + 1}</td>
+                <td>
+                    <strong>${escapeHTML(anak.full_name)}</strong>
+                    <br><small>${escapeHTML(anak.student_number || "-")}</small>
+                </td>
+                <td>
+                    <select class="status">
+                        ${["Hadir", "Izin", "Sakit", "Alpa"].map(item =>
+                            `<option value="${item}" ${status === item ? "selected" : ""}>${item}</option>`
+                        ).join("")}
+                    </select>
+                </td>
+                <td>
+                    <textarea class="catatan" rows="2"
+                        placeholder="Catatan harian...">${escapeHTML(catatan?.notes || "")}</textarea>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+tanggalAbsensi.addEventListener("change", muatAbsensi);
+
+document.getElementById("simpanAbsensi").addEventListener("click", async () => {
+    const pesan = document.getElementById("pesanAbsensi");
+    const tanggal = tanggalAbsensi.value;
+    const baris = [...document.querySelectorAll("#daftarAbsensi tr[data-id]")];
+
+    if (!tanggal) {
+        pesan.textContent = "Pilih tanggal absensi.";
+        return;
+    }
+
+    const alasanLibur = periksaHariLiburGuru(tanggal);
+    if (alasanLibur) {
+        pesan.textContent =
+            "Tidak bisa menyimpan absensi pada hari libur: " +
+            alasanLibur;
+        return;
+    }
+
+    if (baris.length === 0) {
+        pesan.textContent = "Tidak ada data anak untuk disimpan.";
+        return;
+    }
+
+    const tombol = document.getElementById("simpanAbsensi");
+    tombol.disabled = true;
+    tombol.textContent = "Menyimpan...";
+    pesan.textContent = "";
+
+    const records = baris.map(baris => ({
+        student_id: baris.dataset.id,
+        attendance_date: tanggal,
+        status: baris.querySelector(".status").value,
+        notes: baris.querySelector(".catatan").value.trim() || null,
+        recorded_by: sessionAktif.user.id
+    }));
+
+    const { error } = await supabase
+        .from("attendance")
+        .upsert(records, {
+            onConflict: "student_id,attendance_date"
+        });
+
+    tombol.disabled = false;
+    tombol.textContent = "Simpan Absensi";
+
+    if (error) {
+        pesan.className = "message";
+        pesan.textContent = "Gagal menyimpan absensi: " + error.message;
+        return;
+    }
+
+    pesan.className = "message success";
+    pesan.textContent = "Absensi berhasil disimpan.";
+    await muatRingkasan();
+});
+
+async function muatPengumuman() {
+    const container = document.getElementById("daftarPengumuman");
+    const pesan = document.getElementById("pesanPengumuman");
+    pesan.textContent = "";
+
+    const { data, error } = await supabase
+        .from("announcements")
+        .select("*")
+        .eq("is_published", true);
+
+    if (error) {
+        container.innerHTML = "";
+        pesan.textContent = "Gagal memuat pengumuman.";
+        console.error(error);
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        container.innerHTML = "Belum ada pengumuman.";
+        return;
+    }
+
+    container.innerHTML = data.map(item => `
+        <article class="announcement-card">
+            <h3>${escapeHTML(item.title || "Pengumuman")}</h3>
+            <p>${escapeHTML(item.content || "-")}</p>
+        </article>
+    `).join("");
+}
+
+function formatTanggalKegiatan(value) {
+    if (!value) return "-";
+
+    const date = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return escapeHTML(value);
+
+    return new Intl.DateTimeFormat("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    }).format(date);
+}
+
+async function muatKegiatanSekolah() {
+    const daftar = document.getElementById("daftarKegiatanSekolah");
+    const pesan = document.getElementById("pesanKegiatanSekolah");
+    daftar.innerHTML = '<tr><td colspan="3">Memuat kegiatan...</td></tr>';
+    pesan.textContent = "";
+
+    const { data, error } = await supabase
+        .from("activities")
+        .select("title, activity_date, description")
+        .eq("is_active", true)
+        .order("activity_date", { ascending: false });
+
+    if (error) {
+        daftar.innerHTML =
+            '<tr><td colspan="3">Kegiatan belum dapat dimuat.</td></tr>';
+        pesan.textContent = "Gagal memuat kegiatan sekolah.";
+        console.error("Gagal memuat kegiatan sekolah:", error);
+        return;
+    }
+
+    if (!Array.isArray(data)) {
+        daftar.innerHTML =
+            '<tr><td colspan="3">Kegiatan belum dapat dimuat.</td></tr>';
+        pesan.textContent = "Respons daftar kegiatan tidak valid.";
+        console.error("Respons daftar kegiatan tidak valid:", data);
+        return;
+    }
+
+    if (data.length === 0) {
+        daftar.innerHTML =
+            '<tr><td colspan="3">Belum ada kegiatan aktif yang dapat ditampilkan.</td></tr>';
+        return;
+    }
+
+    daftar.innerHTML = data.map(item => `
+        <tr>
+            <td><strong>${escapeHTML(item.title || "Kegiatan")}</strong></td>
+            <td>${formatTanggalKegiatan(item.activity_date)}</td>
+            <td>${escapeHTML(item.description || "-")}</td>
+        </tr>
+    `).join("");
+}
+
+async function muatInformasiHarian() {
+    pesanHarian.textContent = "";
+    pesanHarian.className = "message";
+    const { data: siswa, error: siswaError } = await supabase
+        .from("students")
+        .select("id, student_number, full_name")
+        .eq("is_active", true)
+        .order("full_name");
+
+    if (siswaError) {
+        pesanHarian.textContent =
+            "Gagal memuat daftar anak: " + siswaError.message;
+        console.error("Gagal memuat siswa untuk informasi harian:", siswaError);
+        return;
+    }
+
+    laporanHarianSiswa.innerHTML =
+        '<option value="">Pilih anak</option>' +
+        (siswa || []).map(anak =>
+            `<option value="${escapeHTML(anak.id)}">
+                ${escapeHTML(anak.full_name)}
+                ${anak.student_number
+                    ? ` - ${escapeHTML(anak.student_number)}`
+                    : ""}
+            </option>`
+        ).join("");
+
+    if (!siswa || siswa.length === 0) {
+        pesanHarian.textContent = "Belum ada anak aktif.";
+    }
+}
+
+function isiFormInformasiHarian(laporan) {
+    document.getElementById("mealInfo").value =
+        laporan?.meal_info || "";
+    document.getElementById("activityInfo").value =
+        laporan?.activity_info || "";
+    document.getElementById("moodInfo").value =
+        laporan?.mood_info || "";
+    document.getElementById("otherNotes").value =
+        laporan?.other_notes || "";
+}
+
+async function muatLaporanHarian() {
+    const studentId = laporanHarianSiswa.value;
+    const reportDate = tanggalHarian.value;
+
+    if (!studentId || !reportDate) {
+        isiFormInformasiHarian(null);
+        return;
+    }
+
+    pesanHarian.textContent = "";
+    pesanHarian.className = "message";
+
+    const { data: laporan, error } = await supabase
+        .from("daily_reports")
+        .select(
+            "id, student_id, report_date, meal_info, activity_info, " +
+            "mood_info, other_notes, recorded_by, created_at"
+        )
+        .eq("student_id", studentId)
+        .eq("report_date", reportDate)
+        .maybeSingle();
+
+    if (error) {
+        pesanHarian.textContent =
+            "Gagal membuka laporan harian: " + error.message;
+        console.error("Gagal memuat daily_reports:", error);
+        isiFormInformasiHarian(null);
+        return;
+    }
+
+    isiFormInformasiHarian(laporan);
+    pesanHarian.textContent = laporan
+        ? "Laporan sebelumnya ditemukan. Silakan lanjutkan dengan mengedit laporan yang sudah tersedia."
+        : "Belum ada laporan untuk anak dan tanggal ini.";
+    pesanHarian.className = laporan ? "message info" : "message";
+}
+
+laporanHarianSiswa.addEventListener("change", muatLaporanHarian);
+
+formInformasiHarian.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!sessionAktif?.user?.id) {
+        pesanHarian.textContent =
+            "Sesi login tidak ditemukan. Silakan login kembali.";
+        pesanHarian.className = "message";
+        return;
+    }
+
+    const studentId = laporanHarianSiswa.value;
+    const reportDate = tanggalHarian.value;
+
+    if (!studentId) {
+        pesanHarian.textContent = "Pilih anak terlebih dahulu.";
+        pesanHarian.className = "message";
+        laporanHarianSiswa.focus();
+        return;
+    }
+
+    if (!reportDate) {
+        pesanHarian.textContent = "Pilih tanggal laporan terlebih dahulu.";
+        pesanHarian.className = "message";
+        tanggalHarian.focus();
+        return;
+    }
+
+    const laporan = {
+        student_id: studentId,
+        report_date: reportDate,
+        meal_info: document.getElementById("mealInfo").value.trim() || null,
+        activity_info:
+            document.getElementById("activityInfo").value.trim() || null,
+        mood_info:
+            document.getElementById("moodInfo").value.trim() || null,
+        other_notes:
+            document.getElementById("otherNotes").value.trim() || null,
+        recorded_by: sessionAktif.user.id
+    };
+
+    simpanInformasiHarian.disabled = true;
+    simpanInformasiHarian.textContent = "Menyimpan...";
+    pesanHarian.textContent = "";
+    pesanHarian.className = "message";
+
+    console.info("Menyimpan laporan harian:", {
+        student_id: studentId,
+        report_date: reportDate,
+        recorded_by: sessionAktif.user.id
+    });
+
+    const { error } = await supabase
+        .from("daily_reports")
+        .upsert(laporan, {
+            onConflict: "student_id,report_date"
+        });
+
+    simpanInformasiHarian.disabled = false;
+    simpanInformasiHarian.textContent = "Simpan Informasi Harian";
+
+    if (error) {
+        pesanHarian.textContent =
+            "Gagal menyimpan informasi harian: " + error.message;
+        pesanHarian.className = "message";
+        console.error("Gagal menyimpan daily_reports:", {
+            code: error.code || null,
+            message: error.message,
+            details: error.details || null,
+            hint: error.hint || null
+        });
+        return;
+    }
+
+    console.info("Laporan harian berhasil disimpan:", {
+        student_id: studentId,
+        report_date: reportDate
+    });
+    pesanHarian.textContent =
+        "Informasi harian berhasil disimpan.";
+    pesanHarian.className = "message success";
+});
+
+async function muatPerkembangan() {
+    const { data: siswa, error } = await supabase
+        .from("students")
+        .select("id, student_number, full_name")
+        .eq("is_active", true)
+        .order("full_name");
+
+    if (error) {
+        pesanPerkembangan.textContent =
+            "Gagal memuat daftar siswa: " + error.message;
+        return;
+    }
+
+    laporanSiswa.innerHTML =
+        '<option value="">Pilih siswa</option>' +
+        (siswa || []).map(anak =>
+            `<option value="${escapeHTML(anak.id)}">
+                ${escapeHTML(anak.full_name)}
+                ${anak.student_number ? ` - ${escapeHTML(anak.student_number)}` : ""}
+            </option>`
+        ).join("");
+
+    ringkasanPerkembangan.textContent =
+        "Pilih siswa, tahun ajaran, dan semester untuk melihat atau mengedit laporan.";
+}
+
+function nilaiTahunAjaranDefault() {
+    const tahunSekarang = new Date().getFullYear();
+    return `${tahunSekarang}/${tahunSekarang + 1}`;
+}
+
+function validasiTahunAjaran(tahun) {
+    return /^\d{4}\/\d{4}$/.test(tahun);
+}
+
+function isiFormPerkembangan(laporan) {
+    document.getElementById("religiousMoral").value =
+        laporan?.religious_moral || "";
+    document.getElementById("physicalMotor").value =
+        laporan?.physical_motor || "";
+    document.getElementById("cognitive").value =
+        laporan?.cognitive || "";
+    document.getElementById("language").value =
+        laporan?.language || "";
+    document.getElementById("socialEmotional").value =
+        laporan?.social_emotional || "";
+    document.getElementById("art").value =
+        laporan?.art || "";
+    document.getElementById("teacherNotes").value =
+        laporan?.teacher_notes || "";
+}
+
+async function muatLaporanPerkembangan() {
+    const studentId = laporanSiswa.value;
+    const tahun = laporanTahun.value.trim();
+    const semester = Number(laporanSemester.value);
+
+    if (!studentId || !tahun) {
+        isiFormPerkembangan(null);
+        ringkasanPerkembangan.textContent =
+            "Pilih siswa dan isi tahun ajaran.";
+        return;
+    }
+
+    if (!validasiTahunAjaran(tahun)) {
+        pesanPerkembangan.textContent =
+            "Tahun ajaran harus menggunakan format YYYY/YYYY.";
+        isiFormPerkembangan(null);
+        return;
+    }
+
+    pesanPerkembangan.textContent = "";
+    const { data: laporan, error } = await supabase
+        .from("child_development_reports")
+        .select(
+            "id, student_id, academic_year, semester, religious_moral, " +
+            "physical_motor, cognitive, language, social_emotional, art, " +
+            "teacher_notes, recorded_by, created_at, updated_at"
+        )
+        .eq("student_id", studentId)
+        .eq("academic_year", tahun)
+        .eq("semester", semester)
+        .maybeSingle();
+
+    if (error) {
+        pesanPerkembangan.textContent =
+            "Gagal memuat laporan perkembangan: " + error.message;
+        isiFormPerkembangan(null);
+        return;
+    }
+
+    isiFormPerkembangan(laporan);
+    ringkasanPerkembangan.textContent = laporan
+        ? `Laporan tersimpan untuk Tahun Ajaran ${tahun}, Semester ${semester}. Anda dapat mengedit laporan ini.`
+        : `Belum ada laporan untuk Tahun Ajaran ${tahun}, Semester ${semester}.`;
+}
+
+formPerkembangan.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (!sessionAktif?.user?.id) {
+        pesanPerkembangan.textContent =
+            "Sesi login tidak ditemukan. Silakan login kembali.";
+        return;
+    }
+
+    const studentId = laporanSiswa.value;
+    const tahun = laporanTahun.value.trim();
+    const semester = Number(laporanSemester.value);
+
+    if (!studentId) {
+        pesanPerkembangan.textContent = "Pilih siswa terlebih dahulu.";
+        return;
+    }
+
+    if (!validasiTahunAjaran(tahun)) {
+        pesanPerkembangan.textContent =
+            "Tahun ajaran harus menggunakan format YYYY/YYYY.";
+        return;
+    }
+
+    const fieldPerkembangan = [
+        ["religiousMoral", "Nilai Agama dan Moral"],
+        ["physicalMotor", "Fisik Motorik"],
+        ["cognitive", "Kognitif"],
+        ["language", "Bahasa"],
+        ["socialEmotional", "Sosial Emosional"],
+        ["art", "Seni"]
+    ];
+
+    for (const [id, label] of fieldPerkembangan) {
+        const nilai = document.getElementById(id).value.trim();
+        if (!nilai) {
+            pesanPerkembangan.textContent =
+                `${label} wajib diisi.`;
+            document.getElementById(id).focus();
+            return;
+        }
+    }
+
+    const laporan = {
+        student_id: studentId,
+        academic_year: tahun,
+        semester,
+        religious_moral:
+            document.getElementById("religiousMoral").value.trim(),
+        physical_motor:
+            document.getElementById("physicalMotor").value.trim(),
+        cognitive:
+            document.getElementById("cognitive").value.trim(),
+        language:
+            document.getElementById("language").value.trim(),
+        social_emotional:
+            document.getElementById("socialEmotional").value.trim(),
+        art:
+            document.getElementById("art").value.trim(),
+        teacher_notes:
+            document.getElementById("teacherNotes").value.trim() || null,
+        recorded_by: sessionAktif.user.id
+    };
+
+    simpanPerkembangan.disabled = true;
+    simpanPerkembangan.textContent = "Menyimpan...";
+    pesanPerkembangan.textContent = "";
+
+    const { error } = await supabase
+        .from("child_development_reports")
+        .upsert(laporan, {
+            onConflict: "student_id,academic_year,semester"
+        });
+
+    simpanPerkembangan.disabled = false;
+    simpanPerkembangan.textContent = "Simpan Laporan";
+
+    if (error) {
+        pesanPerkembangan.className = "message";
+        pesanPerkembangan.textContent =
+            "Gagal menyimpan laporan: " + error.message;
+        return;
+    }
+
+    pesanPerkembangan.className = "message success";
+    pesanPerkembangan.textContent =
+        "Laporan perkembangan berhasil disimpan.";
+    await muatLaporanPerkembangan();
+});
+
+laporanSiswa.addEventListener("change", muatLaporanPerkembangan);
+laporanTahun.addEventListener("change", muatLaporanPerkembangan);
+laporanSemester.addEventListener("change", muatLaporanPerkembangan);
+
+laporanTahun.value = nilaiTahunAjaranDefault();
+
+tanggalHarian.addEventListener("change", muatLaporanHarian);
+
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.replace("login.html");
+});
+
+document.body.style.display = "none";
+tanggalAbsensi.value = tanggalHariIni();
+tanggalHarian.value = tanggalHariIni();
+
+(async () => {
+    if (!(await periksaGuru())) return;
+
+    document.body.style.display = "block";
+    await muatHariLiburGuru();
+    await Promise.all([
+        muatRingkasan(),
+        muatSiswa(),
+        muatAbsensi(),
+        muatPengumuman(),
+        muatKegiatanSekolah(),
+        muatInformasiHarian(),
+        muatPerkembangan()
+    ]);
+})();
+</script>
+
+</body>
+</html>

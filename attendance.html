@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi - TK AL-Muhtar Pabuaran</title>
+    <link rel="stylesheet" href="admin.css">
+    <style>
+        .attendance-card {
+            background: var(--white);
+            padding: 25px;
+            border: 1px solid var(--border);
+            border-radius: 19px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(36, 62, 99, .04);
+        }
+        .attendance-card h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--navy);
+            font-size: 18px;
+            font-weight: 900;
+        }
+        .holiday-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+        .holiday-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .danger-btn {
+            background: #b42318;
+            color: white;
+        }
+        .holiday-table td,
+        .holiday-table th {
+            min-width: 120px;
+        }
+        @media (max-width: 700px) {
+            .holiday-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: end;
+            margin-bottom: 18px;
+        }
+        .toolbar label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        input, select, textarea {
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font: inherit;
+            max-width: 100%;
+        }
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 16px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+        .primary-btn {
+            background: var(--blue);
+            color: var(--white);
+        }
+        .secondary-btn {
+            background: var(--light-blue);
+            color: var(--navy);
+        }
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+        th {
+            background: #f8fafc;
+            color: var(--navy);
+        }
+        td select {
+            width: 100%;
+        }
+        td textarea {
+            width: 100%;
+            min-width: 130px;
+            box-sizing: border-box;
+        }
+        .message {
+            margin-top: 12px;
+            font-weight: 700;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            background: var(--light-blue);
+            color: var(--navy);
+            text-decoration: none;
+            font-weight: 800;
+            font-size: 14px;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+        .back-link:hover {
+            background: #dceaf8;
+        }
+        @media (max-width: 600px) {
+            .attendance-card { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2>TK AL-Muhtar</h2>
+        <p>Sistem Administrasi Sekolah</p>
+
+        <a href="admin.html">📊 Dashboard</a>
+        <a href="students.html">👧 Data Siswa</a>
+        <a href="teachers.html">👩‍🏫 Data Guru</a>
+        <a href="attendance.html" class="active" aria-current="page">📋 Absensi</a>
+        <a href="development.html">🌱 Perkembangan Anak</a>
+        <a href="announcements.html">📢 Pengumuman</a>
+        <a href="kegiatan.html">🎨 Kegiatan</a>
+        <a href="#">💰 Keuangan</a>
+        <a href="accounts.html">👤 Manajemen Akun</a>
+        <a href="settings.html">⚙️ Pengaturan</a>
+        <button type="button" id="adminLogout" class="sidebar-logout">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content attendance-content">
+        <div class="topbar">
+            <h1>Absensi Siswa</h1>
+            <div class="admin-profile">👤 Admin TK</div>
+        </div>
+
+        <div class="attendance-card">
+        <p>Kelola kehadiran siswa TK AL-Muhtar Pabuaran.</p>
+        <div class="toolbar">
+            <div>
+                <label for="tanggal">Tanggal Absensi</label>
+                <input type="date" id="tanggal">
+            </div>
+            <button class="secondary-btn" id="muatBtn">Muat Data</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Nama Siswa</th>
+                        <th>Status</th>
+                        <th>Catatan (Opsional)</th>
+                    </tr>
+                </thead>
+                <tbody id="daftarSiswa">
+                    <tr>
+                        <td colspan="4">Memuat data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p id="pesan" class="message"></p>
+        <button class="primary-btn" id="simpanBtn">Simpan Absensi</button>
+    </div>
+
+    <div class="attendance-card">
+        <h2>Pengaturan Hari Libur</h2>
+        <p>Tambah satu hari atau rentang beberapa hari. Guru dapat melihat hari libur, tetapi tidak mengelolanya.</p>
+
+        <form id="formHariLibur">
+            <input type="hidden" id="liburId">
+            <div class="holiday-grid">
+                <div>
+                    <label for="namaLibur">Nama/Keterangan Libur</label>
+                    <input type="text" id="namaLibur" maxlength="150" required>
+                </div>
+                <div>
+                    <label for="deskripsiLibur">Deskripsi (Opsional)</label>
+                    <input type="text" id="deskripsiLibur" maxlength="2000">
+                </div>
+                <div>
+                    <label for="tanggalMulaiLibur">Tanggal Mulai</label>
+                    <input type="date" id="tanggalMulaiLibur" required>
+                </div>
+                <div>
+                    <label for="tanggalSelesaiLibur">Tanggal Selesai</label>
+                    <input type="date" id="tanggalSelesaiLibur" required>
+                </div>
+            </div>
+            <div class="holiday-actions">
+                <button class="primary-btn" id="tombolSimpanLibur" type="submit">Simpan Libur</button>
+                <button class="secondary-btn" id="batalEditLibur" type="button" hidden>Batal Edit</button>
+            </div>
+            <p id="pesanLibur" class="message"></p>
+        </form>
+
+        <div class="table-wrap">
+            <table class="holiday-table">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Tanggal</th>
+                        <th>Keterangan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="daftarHariLibur">
+                    <tr><td colspan="4">Memuat data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </main>
+</div>
+
+<script type="module">
+import { createClient } from
+    "https://esm.sh/@supabase/supabase-js@2";
+import { HOLIDAYS_2026 } from "./calendar-2026.js";
+
+const SUPABASE_URL = "https://ianbedmbrrmqhbpbbvnr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_vgmD7EpEDgzSSHZout_7FQ_civgvMQ8";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const tanggalInput = document.getElementById("tanggal");
+const daftarSiswa = document.getElementById("daftarSiswa");
+const pesan = document.getElementById("pesan");
+const simpanBtn = document.getElementById("simpanBtn");
+
+let siswaAktif = [];
+let sessionAktif = null;
+let daftarHariLiburDinamis = [];
+
+function tanggalHariIni() {
+    const sekarang = new Date();
+    const lokal = new Date(
+        sekarang.getTime() - sekarang.getTimezoneOffset() * 60000
+    );
+    return lokal.toISOString().slice(0, 10);
+}
+
+function periksaHariLibur(tanggal) {
+    const hari = new Date(tanggal + "T00:00:00").getDay();
+
+    if (hari === 0 || hari === 6) {
+        return "Libur akhir pekan";
+    }
+
+    const liburDinamis = daftarHariLiburDinamis.find(item =>
+        tanggal >= item.start_date && tanggal <= item.end_date
+    );
+    if (liburDinamis) {
+        return liburDinamis.description ||
+            liburDinamis.name;
+    }
+
+    if (HOLIDAYS_2026[tanggal]) {
+        return HOLIDAYS_2026[tanggal];
+    }
+
+    return null;
+}
+
+tanggalInput.value = tanggalHariIni();
+
+function tampilPesan(teks, berhasil = false) {
+    pesan.textContent = teks;
+    pesan.style.color = berhasil ? "#16803c" : "#c0392b";
+}
+
+function escapeHTML(teks) {
+    return String(teks ?? "").replace(/[&<>"']/g, karakter => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[karakter]);
+}
+
+async function muatHariLibur() {
+    const daftar = document.getElementById("daftarHariLibur");
+
+    const { data, error } = await supabase
+        .from("school_holidays")
+        .select("id, name, start_date, end_date, description")
+        .order("start_date", { ascending: true });
+
+    if (error) {
+        daftar.innerHTML =
+            '<tr><td colspan="4">Gagal memuat hari libur.</td></tr>';
+        console.error(error);
+        return;
+    }
+
+    daftarHariLiburDinamis = data || [];
+
+    if (daftarHariLiburDinamis.length === 0) {
+        daftar.innerHTML =
+            '<tr><td colspan="4">Belum ada hari libur tambahan.</td></tr>';
+        return;
+    }
+
+    daftar.innerHTML = daftarHariLiburDinamis.map(item => {
+        const tanggal =
+            item.start_date === item.end_date
+                ? item.start_date
+                : `${item.start_date} s/d ${item.end_date}`;
+
+        return `
+            <tr>
+                <td><strong>${escapeHTML(item.name)}</strong></td>
+                <td>${escapeHTML(tanggal)}</td>
+                <td>${escapeHTML(item.description || "-")}</td>
+                <td>
+                    <div class="holiday-actions">
+                        <button type="button" class="secondary-btn"
+                            data-edit-libur="${escapeHTML(item.id)}">Edit</button>
+                        <button type="button" class="danger-btn"
+                            data-hapus-libur="${escapeHTML(item.id)}">Hapus</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+async function periksaAdmin() {
+    const { data: { session }, error } =
+        await supabase.auth.getSession();
+
+    if (error || !session) {
+        window.location.href = "login.html";
+        return false;
+    }
+
+    sessionAktif = session;
+
+    const { data, error: adminError } =
+        await supabase.rpc("is_admin");
+
+    if (adminError || data !== true) {
+        await supabase.auth.signOut();
+        window.location.href = "login.html";
+        return false;
+    }
+
+    return true;
+}
+
+document.getElementById("formHariLibur")
+    .addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const liburId =
+            document.getElementById("liburId").value;
+        const name =
+            document.getElementById("namaLibur").value.trim();
+        const description =
+            document.getElementById("deskripsiLibur").value.trim();
+        const startDate =
+            document.getElementById("tanggalMulaiLibur").value;
+        const endDate =
+            document.getElementById("tanggalSelesaiLibur").value;
+        const pesan =
+            document.getElementById("pesanLibur");
+        const tombol =
+            document.getElementById("tombolSimpanLibur");
+
+        pesan.textContent = "";
+
+        if (!name) {
+            pesan.textContent =
+                "Nama/keterangan libur wajib diisi.";
+            return;
+        }
+
+        if (!startDate || !endDate) {
+            pesan.textContent =
+                "Tanggal mulai dan tanggal selesai wajib diisi.";
+            return;
+        }
+
+        if (endDate < startDate) {
+            pesan.textContent =
+                "Tanggal selesai tidak boleh sebelum tanggal mulai.";
+            return;
+        }
+
+        tombol.disabled = true;
+        tombol.textContent = "Menyimpan...";
+
+        const payload = {
+            name,
+            description: description || null,
+            start_date: startDate,
+            end_date: endDate
+        };
+
+        if (!liburId) {
+            payload.created_by = sessionAktif.user.id;
+        }
+
+        const query = liburId
+            ? supabase
+                .from("school_holidays")
+                .update(payload)
+                .eq("id", liburId)
+            : supabase
+                .from("school_holidays")
+                .insert(payload);
+
+        const { error } = await query;
+
+        tombol.disabled = false;
+        tombol.textContent = "Simpan Libur";
+
+        if (error) {
+            pesan.textContent =
+                "Gagal menyimpan hari libur: " + error.message;
+            return;
+        }
+
+        pesan.textContent =
+            liburId
+                ? "Hari libur berhasil diperbarui."
+                : "Hari libur berhasil ditambahkan.";
+
+        document.getElementById("formHariLibur").reset();
+        document.getElementById("liburId").value = "";
+        document.getElementById("batalEditLibur").hidden = true;
+        await muatHariLibur();
+        await muatAbsensi();
+    });
+
+document.getElementById("batalEditLibur")
+    .addEventListener("click", () => {
+        document.getElementById("formHariLibur").reset();
+        document.getElementById("liburId").value = "";
+        document.getElementById("batalEditLibur").hidden = true;
+    });
+
+document.getElementById("daftarHariLibur")
+    .addEventListener("click", async (event) => {
+        const editButton =
+            event.target.closest("[data-edit-libur]");
+        const deleteButton =
+            event.target.closest("[data-hapus-libur]");
+
+        if (editButton) {
+            const item = daftarHariLiburDinamis.find(libur =>
+                libur.id === editButton.dataset.editLibur
+            );
+            if (!item) return;
+
+            document.getElementById("liburId").value = item.id;
+            document.getElementById("namaLibur").value = item.name;
+            document.getElementById("deskripsiLibur").value =
+                item.description || "";
+            document.getElementById("tanggalMulaiLibur").value =
+                item.start_date;
+            document.getElementById("tanggalSelesaiLibur").value =
+                item.end_date;
+            document.getElementById("batalEditLibur").hidden = false;
+            document.getElementById("namaLibur").focus();
+        }
+
+        if (deleteButton) {
+            const id = deleteButton.dataset.hapusLibur;
+            if (!window.confirm("Hapus hari libur ini?")) return;
+
+            const { error } = await supabase
+                .from("school_holidays")
+                .delete()
+                .eq("id", id);
+
+            if (error) {
+                document.getElementById("pesanLibur").textContent =
+                    "Gagal menghapus hari libur: " + error.message;
+                return;
+            }
+
+            document.getElementById("pesanLibur").textContent =
+                "Hari libur berhasil dihapus.";
+            await muatHariLibur();
+            await muatAbsensi();
+        }
+    });
+
+async function muatAbsensi() {
+    tampilPesan("");
+    daftarSiswa.innerHTML =
+        '<tr><td colspan="4">Memuat data...</td></tr>';
+
+    const tanggal = tanggalInput.value;
+
+    if (!tanggal) {
+        tampilPesan("Pilih tanggal terlebih dahulu.");
+        return;
+    }
+
+    const alasanLibur = periksaHariLibur(tanggal);
+
+    if (alasanLibur) {
+        siswaAktif = [];
+        simpanBtn.disabled = true;
+
+        daftarSiswa.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center;padding:30px">
+                    <h2>📅 HARI LIBUR</h2>
+                    <p>${escapeHTML(alasanLibur)}</p>
+                    <p>Tidak ada kegiatan absensi hari ini.</p>
+                </td>
+            </tr>
+        `;
+
+        tampilPesan("Absensi tidak tersedia pada hari libur.", true);
+        return;
+    }
+
+    simpanBtn.disabled = false;
+
+    const { data: siswa, error: siswaError } = await supabase
+        .from("students")
+        .select("id, student_number, full_name")
+        .eq("is_active", true)
+        .order("full_name");
+
+    if (siswaError) {
+        daftarSiswa.innerHTML = "";
+        tampilPesan("Gagal memuat siswa: " + siswaError.message);
+        return;
+    }
+
+    const { data: absensi, error: absensiError } = await supabase
+        .from("attendance")
+        .select("student_id, status, notes")
+        .eq("attendance_date", tanggal);
+
+    if (absensiError) {
+        daftarSiswa.innerHTML = "";
+        tampilPesan("Gagal memuat absensi: " + absensiError.message);
+        return;
+    }
+
+    siswaAktif = siswa || [];
+
+    if (siswaAktif.length === 0) {
+        daftarSiswa.innerHTML =
+            '<tr><td colspan="4">Belum ada siswa aktif.</td></tr>';
+        return;
+    }
+
+    const dataAbsensi = new Map(
+        (absensi || []).map(item => [item.student_id, item])
+    );
+
+    daftarSiswa.innerHTML = siswaAktif.map((siswa, index) => {
+        const catatan = dataAbsensi.get(siswa.id);
+
+        return `
+            <tr data-id="${escapeHTML(siswa.id)}">
+                <td>${index + 1}</td>
+                <td>
+                    <strong>${escapeHTML(siswa.full_name)}</strong>
+                    <br>
+                    <small>${escapeHTML(siswa.student_number || "-")}</small>
+                </td>
+                <td>
+                    <select class="status">
+                        <option value="Hadir" ${catatan?.status === "Hadir" ? "selected" : ""}>Hadir</option>
+                        <option value="Izin" ${catatan?.status === "Izin" ? "selected" : ""}>Izin</option>
+                        <option value="Sakit" ${catatan?.status === "Sakit" ? "selected" : ""}>Sakit</option>
+                        <option value="Alpa" ${catatan?.status === "Alpa" ? "selected" : ""}>Alpa</option>
+                    </select>
+                </td>
+                <td>
+                    <textarea class="catatan" rows="2"
+                        placeholder="Catatan..."
+                    >${escapeHTML(catatan?.notes || "")}</textarea>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+async function simpanAbsensi() {
+    if (!sessionAktif) {
+        tampilPesan("Sesi login tidak ditemukan. Silakan login kembali.");
+        return;
+    }
+
+    const tanggal = tanggalInput.value;
+
+    if (!tanggal) {
+        tampilPesan("Pilih tanggal terlebih dahulu.");
+        return;
+    }
+
+    if (periksaHariLibur(tanggal)) {
+        tampilPesan("Tidak bisa menyimpan absensi pada hari libur.");
+        return;
+    }
+
+    if (siswaAktif.length === 0) {
+        tampilPesan("Tidak ada siswa untuk disimpan.");
+        return;
+    }
+
+    const baris = [...daftarSiswa.querySelectorAll("tr[data-id]")];
+
+    const records = baris.map(baris => ({
+        student_id: baris.dataset.id,
+        attendance_date: tanggal,
+        status: baris.querySelector(".status").value,
+        notes: baris.querySelector(".catatan").value.trim() || null,
+        recorded_by: sessionAktif.user.id
+    }));
+
+    simpanBtn.disabled = true;
+    simpanBtn.textContent = "Menyimpan...";
+
+    const { error } = await supabase
+        .from("attendance")
+        .upsert(records, {
+            onConflict: "student_id,attendance_date"
+        });
+
+    simpanBtn.disabled = false;
+    simpanBtn.textContent = "Simpan Absensi";
+
+    if (error) {
+        tampilPesan("Gagal menyimpan: " + error.message);
+        return;
+    }
+
+    tampilPesan("Absensi berhasil disimpan!", true);
+}
+
+document.getElementById("muatBtn").addEventListener("click", muatAbsensi);
+simpanBtn.addEventListener("click", simpanAbsensi);
+
+const bolehMasuk = await periksaAdmin();
+
+if (bolehMasuk) {
+    await muatHariLibur();
+    await muatAbsensi();
+}
+
+document.getElementById("adminLogout").addEventListener("click", async () => {
+    const button = document.getElementById("adminLogout");
+    button.disabled = true;
+    try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        window.location.replace("login.html");
+    } catch (error) {
+        console.error("Gagal logout Admin:", error);
+        alert("Gagal logout: " + error.message);
+        button.disabled = false;
+    }
+});
+</script>
+
+</body>
+</html>
